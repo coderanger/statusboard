@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Builder status</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+    <style type="text/css">
+    body {
+      color: #FFF;
+      background-color: #333;
+      font-family: Helvetica, sans-serif;
+    }
+    
+    #menu {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      width: 100px;
+      height: 52px;
+    }
+    
+    .row {
+      clear: both;
+      height: 200px;
+    }
+    
+    .box {
+      float: left;
+      width: 180px;
+      height: 180px;
+      margin: 5px;
+      padding: 5px;
+      background-color: #4D0F4D;
+      -webkit-border-radius: 18px;
+      -moz-border-radius: 18px;
+      border-radius: 18px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .label {
+      float: left;
+      padding: 0;
+      font-weight: bold;
+      font-size: 4em;
+      line-height: 200px;
+      color: #FFF;
+      background-color: transparent;
+    }
+    
+    .red {
+      background-color: #660A0A;
+    }
+    
+    .green {
+      background-color: #0A660A;
+    }
+    
+    .box > div {
+      position: absolute;
+      width: 180px;
+      text-align: center;
+    }
+    
+    .box .name {
+      position: static;
+      font-size: 1.5em;
+    }
+    
+    .box .line1 {
+      top: 45px;
+    }
+    
+    .box .progress {
+      width: 150px;
+      height: 25px;
+      position: absolute;
+      top: 78px;
+      left: 15px;
+      background-color: #777;
+      border: 1px #000 solid;
+    }
+    
+    .box .progress .progress-inner {
+      height: 25px;
+      width: 0;
+      background-color: #0F9999;
+    }
+    
+    .box .line2 {
+      top: 125px;
+    }
+    
+    .box .status {
+      bottom: 5px;
+      font-size: 1.3em;
+    }
+    
+    .placeholder {
+      background-color: #777;
+    }
+    
+    #trash {
+      position: fixed;
+      bottom: 5px;
+      right: 5px;
+      display: none;
+      z-index: 1001;
+    }
+    
+    #trash.hover {
+      background-color: #DDD;
+    }
+    </style>
+    <script type="text/javascript">
+    $(function() {
+      $('#menu').mouseenter(function() {
+        $('#menu-inner').show();
+      }).mouseleave(function() {
+        $('#menu-inner').hide();
+      });
+      $('#menu-inner').hide();
+      $('.row').sortable({
+        connectWith: '.row',
+        placeholder: 'box placeholder',
+        start: function(evt, ui) {
+          $('#trash').show();
+        },
+        stop: function(evt, ui) {
+          $('#trash').hide();
+        }
+      });
+      $('#trash').droppable({
+        hoverClass: 'hover',
+        tolerance: 'touch',
+        drop: function(evt, ui) {
+          ui.draggable.remove();
+        }
+      });
+    });
+    </script>
+  </head>
+  <body>
+    <div id="menu"><div id="menu-inner">
+      <img src="/static/icons/gear.png" />
+      <a href="/login"><img src="/static/icons/key.png" /></a>
+    </div></div>
+    {% for row in grid %}
+    <div class="row">
+      {% for widget in row %}
+      {{ widget.output }}
+      {% endfor %}
+    </div>
+    {% endfor %}
+    {{ name }}
+    <div id="trash"><img src="/static/icons/trash.png" /></div>
+  </body>
+</html>

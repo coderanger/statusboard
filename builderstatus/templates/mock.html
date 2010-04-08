@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Builder status</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+    <style type="text/css">
+    body {
+      color: #FFF;
+      background-color: #333;
+      font-family: Helvetica, sans-serif;
+    }
+    
+    .row {
+      clear: both;
+      height: 200px;
+    }
+    
+    .box {
+      float: left;
+      width: 180px;
+      height: 180px;
+      margin: 5px;
+      padding: 5px;
+      background-color: #4D0F4D;
+      -webkit-border-radius: 18px;
+      -moz-border-radius: 18px;
+      border-radius: 18px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .game {
+      float: left;
+      padding: 0;
+      font-weight: bold;
+      font-size: 4em;
+      line-height: 200px;
+      color: #FFF;
+      background-color: transparent;
+    }
+    
+    .red {
+      background-color: #660A0A;
+    }
+    
+    .green {
+      background-color: #0A660A;
+    }
+    
+    .box > div {
+      position: absolute;
+      width: 180px;
+      text-align: center;
+    }
+    
+    .box .name {
+      position: static;
+      font-size: 1.5em;
+    }
+    
+    .box .branch {
+      top: 45px;
+    }
+    
+    .box .progress {
+      width: 150px;
+      height: 25px;
+      position: absolute;
+      top: 78px;
+      left: 15px;
+      background-color: #777;
+      border: 1px #000 solid;
+    }
+    
+    .box .progress .progress-inner {
+      height: 25px;
+      width: 0;
+      background-color: #0F9999;
+    }
+    
+    .box .version {
+      top: 125px;
+    }
+    
+    .box .last-good {
+      bottom: 5px;
+      font-size: 1.3em;
+    }
+    
+    .placeholder {
+      background-color: #777;
+    }
+    
+    #trash {
+      position: fixed;
+      bottom: 5px;
+      right: 5px;
+      display: none;
+      z-index: 1001;
+    }
+    
+    #trash.hover {
+      background-color: #DDD;
+    }
+    </style>
+    <script type="text/javascript">
+    $(function() {
+      $('#rows').sortable({
+        handle: '.game',
+        placeholder: 'placeholder',
+        forcePlaceholderSize: true,
+        start: function(evt, ui) {
+          $('#trash').show();
+        },
+        stop: function(evt, ui) {
+          $('#trash').hide();
+        }
+      });
+      $('.row').sortable({
+        connectWitha: '.row',
+        placeholder: 'box placeholder',
+        items: '> .builder',
+        start: function(evt, ui) {
+          $('#trash').show();
+        },
+        stop: function(evt, ui) {
+          $('#trash').hide();
+        }
+      });
+      $('#trash').droppable({
+        hoverClass: 'hover',
+        tolerance: 'touch',
+        drop: function(evt, ui) {
+          ui.draggable.remove();
+        }
+      });
+    });
+    </script>
+  </head>
+  <body>
+    <div id="rows">
+      <div class="row">
+        <div class="box game">FC</div>
+        <div class="box builder green">
+          <div class="name">CONT-STABLE</div>
+          <div class="branch">Branch 11 /release2</div>
+          <div class="progress"><div class="progress-inner" style="width: 50%;"></div></div>
+          <div class="last-good"></div>
+        </div>
+        <div class="box builder green">
+          <div class="name">PROD-STABLE</div>
+          <div class="branch">Branch 11 /release2</div>
+          <div class="progress"><div class="progress-inner" style="width: 15%;"></div></div>
+          <div class="version">FC_11_20100405_1245</div>
+          <div class="last-good"></div>
+        </div>
+        <div class="box builder">
+          <div class="name">CONT-TIP</div>
+          <div class="branch">Branch 15 /dev</div>
+          <div class="progress"><div class="progress-inner"></div></div>
+          <div class="last-good">Lost 2 days</div>
+        </div>
+        <div class="box builder red">
+          <div class="name">PROD-TIP</div>
+          <div class="branch">Branch 15 /dev</div>
+          <div class="progress"><div class="progress-inner"></div></div>
+          <div class="version">FC_15_20100405_1245</div>
+          <div class="last-good">Broken 10 hours</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="box game">STO</div>
+        <div class="box builder green">
+          <div class="name">CONT-STABLE</div>
+          <div class="branch">Branch 1 /release</div>
+          <div class="progress"><div class="progress-inner" style="width: 40%;"></div></div>
+          <div class="last-good"></div>
+        </div>
+        <div class="box builder green">
+          <div class="name">PROD-STABLE</div>
+          <div class="branch">Branch 1 /release</div>
+          <div class="progress"><div class="progress-inner" style="width: 65%;"></div></div>
+          <div class="version">FC_1_20100405_1245</div>
+          <div class="last-good"></div>
+        </div>
+        <div class="box builder green">
+          <div class="name">CONT-TIP</div>
+          <div class="branch">Branch 5 /dev</div>
+          <div class="progress"><div class="progress-inner" style="width: 66%;"></div></div>
+        </div>
+        <div class="box builder green">
+          <div class="name">PROD-TIP</div>
+          <div class="branch">Branch 5 /dev</div>
+          <div class="progress"><div class="progress-inner" style="width: 33%;"></div></div>
+          <div class="version">ST_5_20100405_1057</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="box game">NNO</div>
+        <div class="box builder green">
+          <div class="name">CONT1</div>
+          <div class="branch">Branch 0 /dev</div>
+          <div class="progress"><div class="progress-inner" style="width: 85%;"></div></div>
+          <div class="last-good"></div>
+        </div>
+        <div class="box builder green">
+          <div class="name">PROD1</div>
+          <div class="branch">Branch 0 /dev</div>
+          <div class="progress"><div class="progress-inner" style="width: 35%;"></div></div>
+          <div class="version">NNO_1_20100405_1245</div>
+          <div class="last-good"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="box game">CN</div>
+        <div class="box builder red">
+          <div class="name">CONT1</div>
+          <div class="branch">Branch 0 /dev</div>
+          <div class="progress"><div class="progress-inner" style="width: 85%;"></div></div>
+          <div class="last-good">Broken 1 day</div>
+        </div>
+        <div class="box builder green">
+          <div class="name">PROD1</div>
+          <div class="branch">Branch 0 /dev</div>
+          <div class="progress"><div class="progress-inner" style="width: 35%;"></div></div>
+          <div class="version">CN_1_20100405_1245</div>
+          <div class="last-good"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="box game">BA</div>
+        <div class="box builder green">
+          <div class="name">CONT1</div>
+          <div class="branch">Branch 0 /dev</div>
+          <div class="progress"><div class="progress-inner" style="width: 85%;"></div></div>
+          <div class="last-good"></div>
+        </div>
+        <div class="box builder">
+          <div class="name">PROD1</div>
+          <div class="branch">Branch 0 /dev</div>
+          <div class="progress"><div class="progress-inner" style="width: 0%;"></div></div>
+          <div class="version"></div>
+          <div class="last-good">Lost 14 days</div>
+        </div>
+      </div>
+    </div>
+    <div id="trash"><img src="/static/icons/trash.png" /></div>
+  </body>
+</html>
