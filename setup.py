@@ -5,10 +5,10 @@ import os
 from setuptools import setup
 
 setup(
-    name = 'BuilderStatus',
+    name = 'StatusBoard',
     version = '1.0',
-    packages = ['builderstatus'],
-    package_data = {'builderstatus': ['templates/*.html', 'htdocs/*.js', 'htdocs/*.css']},
+    packages = ['statusboard'],
+    package_data = {'statusboard': ['templates/*.html', 'htdocs/*.js', 'htdocs/*.css']},
 
     author = 'Noah Kantrowitz',
     author_email = 'noah@coderanger.net',
