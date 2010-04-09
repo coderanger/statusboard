@@ -128,6 +128,23 @@
         },
         stop: function(evt, ui) {
           $('#trash').hide();
+          
+          var serialized = '';
+          var max_i = 0;
+          $('.row').each(function(i) {
+            serialized += '&'+$(this).sortable('serialize', {key:'row'+i});
+            max_i = i;
+          });
+          $.ajax({
+            url: '/ajax/layout',
+            dataType: 'json',
+            data: 'rows='+(max_i+1)+serialized,
+            cache: false,
+            type: 'POST',
+            success: function(data) {
+              
+            }
+          });
         }
       });
       $('#trash').droppable({
@@ -152,7 +169,6 @@
       {% endfor %}
     </div>
     {% endfor %}
-    {{ name }}
     <div id="trash"><img src="/static/icons/trash.png" /></div>
   </body>
 </html>
