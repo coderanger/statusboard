@@ -12,7 +12,7 @@ init({ 'db_type': 'sqlite',
        'session_secret': 'ASDFQW$FAQWEFASD',
      })
 
-from utils import hex_random
+from utils import hex_random, add_new_widget
      
 Builder = model('Builder', 
     name='string',
@@ -50,7 +50,7 @@ default_grid_json = simplejson.dumps(default_grid)
 def render_builder(opts):
     data = {
         'id': opts['id'],
-        'label': 'CONT1',
+        'label': opts.get('label', 'Builder'),
         'progress': random.randint(1, 100),
     }
     return render_template(get_template('widget_builder.html'), **data)
@@ -58,9 +58,18 @@ def render_builder(opts):
 def render_label(opts):
     data = {
         'id': opts['id'],
-        'label': 'FC',
+        'label': opts.get('label', 'Label'),
+        'link': opts.get('link', ''),
     }
     return render_template(get_template('widget_label.html'), **data)
+
+def render_error(opts):
+    return render_template(get_template('widget_error.html'), id=opts['id'], error='Type %s unkown'%opts['type'])
+
+widget_types = {
+    'builder': render_builder,
+    'label': render_label,
+}
 
 def load_settings(web):
     if 'name' not in web.session:
@@ -83,14 +92,19 @@ def load_settings(web):
 @route('/')
 def index(web):
     user_settings = load_settings(web)
+    
+    # Populate the widget library
+    library = []
+    for name, fn in sorted(widget_types.iteritems()):
+        output = fn({'id': 'library-'+name})
+        library.append(output)
+    
+    # Render all the widgets we need
     for row in web.grid:
         for widget_opts in row:
-            if widget_opts['type'] == 'label':
-                fn = render_label
-            elif widget_opts['type'] == 'builder':
-                fn = render_builder
+            fn = widget_types.get(widget_opts['type'], render_error)
             widget_opts['output'] = fn(widget_opts)
-    template('index.html', {'grid': web.grid})
+    template('index.html', {'grid': web.grid, 'library': library})
 
 @route('/ajax/layout')
 def ajax_layout(web):
@@ -110,6 +124,62 @@ def ajax_layout(web):
         new_grid.append(new_row)
     user_settings.grid = simplejson.dumps(new_grid)
     user_settings.save()
+    append(simplejson.dumps({}))
+
+@route('/ajax/add')
+def ajax_add(web):
+    user_settings = load_settings(web)
+    # Insert the new widget and set its type up
+    print 'Adding at %s,%s'%(web.input('row'), web.input('before'))
+    new_widget = add_new_widget(web.grid, int(web.input('row')), web.input('before'))
+    new_widget['type'] = web.input('type')
+    
+    # Save the grid to the DB
+    user_settings.grid = simplejson.dumps(web.grid)
+    user_settings.save()
+    
+    # Render the new widget and send to the browser
+    output = widget_types.get(new_widget['type'], render_error)(new_widget)
+    append(simplejson.dumps({'output': output}))
+
+@route('/ajax/config')
+def ajax_config(web):
+    user_settings = load_settings(web)
+    # Build a lookup dict for the widgets
+    widgets = {}
+    for row in web.grid:
+        for widget in row:
+            widgets[widget['id']] = widget
+    
+    # Set the new options
+    changed = set()
+    for key, value in web.input().iteritems():
+        if key.startswith('input_'):
+            _, widget_id, name = key.split('_', 2)
+            if widget_id in widgets:
+                changed.add(widget_id)
+                print 'Setting %s[%s] = %s'%(widget_id, name, value)
+                widgets[widget_id][name] = value
+    
+    # Save the grid to the DB
+    user_settings.grid = simplejson.dumps(web.grid)
+    user_settings.save()
+    
+    # Render output
+    output = {}
+    for widget_id in changed:
+        output[widget_id] = widget_types.get(widgets[widget_id]['type'], render_error)(widgets[widget_id])
+    append(simplejson.dumps({'output': output}))
+
+@route('/debug/grid')
+def debug_grid(web):
+    from pprint import pformat
+    user_settings = load_settings(web)
+    append('<pre>'+pformat(web.grid)+'</pre>')
+
+@route('/favicon.ico')
+def favicon(web):
+    static_serve(web, 'favicon.ico')
 
 @route('/mock')
 def mock(web):

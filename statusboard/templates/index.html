@@ -9,6 +9,7 @@
       color: #FFF;
       background-color: #333;
       font-family: Helvetica, sans-serif;
+      margin: 0;
     }
     
     #menu {
@@ -17,6 +18,13 @@
       right: 0px;
       width: 100px;
       height: 52px;
+    }
+    
+    #library {
+      display: none;
+      height: 200px;
+      background-color: #444;
+      border-bottom: 4px #111 solid;
     }
     
     .row {
@@ -40,11 +48,37 @@
     
     .label {
       float: left;
+      width: 190px;
+      height: 190px;
       padding: 0;
+      background-color: transparent;
+    }
+    
+    .label .front {
       font-weight: bold;
       font-size: 4em;
       line-height: 200px;
       color: #FFF;
+    }
+    
+    .label .front a {
+      color: #FFF;
+      text-decoration: none;
+    }
+    
+    .label .front a:hover {
+      text-decoration: underline;
+    }
+    
+    .label .back {
+      height: 100%;
+    }
+    
+    .label .back input {
+      width: 10em;
+    }
+    
+    .loading {
       background-color: transparent;
     }
     
@@ -56,7 +90,11 @@
       background-color: #0A660A;
     }
     
-    .box > div {
+    .box .back {
+      display: none;
+    }
+    
+    .box .front > div {
       position: absolute;
       width: 180px;
       text-align: center;
@@ -114,12 +152,73 @@
     </style>
     <script type="text/javascript">
     $(function() {
+      var creating = 0;
+      var changed = [];
+      var optionsMode = false;
+      
       $('#menu').mouseenter(function() {
         $('#menu-inner').show();
       }).mouseleave(function() {
         $('#menu-inner').hide();
       });
       $('#menu-inner').hide();
+      $('#menu-edit').click(function() {
+        $('#library, .row .front, .row .back').toggle();
+        if(optionsMode)
+        {
+          var curChanged = changed;
+          var args = {widgets: curChanged};
+          $.each(curChanged, function(i, v) {
+            $('#'+v).find(':input').each(function() {
+              var elm = $(this);
+              args[elm.attr('id')] = elm.val();
+            }).end().addClass('loading').html('<img src="/static/spinner.gif" />');
+          });
+          $.ajax({
+            url: '/ajax/config',
+            dataType: 'json',
+            data: args,
+            cache: false,
+            type: 'POST',
+            success: function(data) {
+              $.each(data.output, function(k, v) {
+                $('#widget_'+k).after(v).remove();
+              });
+            }
+          });
+          changed = [];
+        }
+        optionsMode = !optionsMode;
+      });
+      $('#library').children().wrap('<div class="library-wrapper" />');
+      $('.library-wrapper').sortable({
+        connectWith: '.row',
+        helper: 'clone',
+        beforeStop: function(evt, ui) {
+          var add_before = $(ui.placeholder).next();
+          var new_creating = creating;
+          creating += 1;
+          add_before.before('<div id="creating'+new_creating+'"class="box loading"><img src="/static/spinner.gif" /></div>');
+          $.ajax({
+            url: '/ajax/add',
+            dataType: 'json',
+            data: {before: add_before.attr('id').substring(7), 
+                   row: add_before.parents('.row').attr('id').substring(3), 
+                   type: $(ui.item).attr('id').substring(15)},
+            cache: false,
+            type: 'POST',
+            success: function(data) {
+              var tmp = $('#creating'+new_creating);
+              var new_widget = tmp.after(data.output).next();
+              tmp.remove();
+              new_widget.find('.front').hide().end().find('.back').show();
+            }
+          })
+        },
+        stop: function(evt, ui) {
+          $(this).sortable('cancel');
+        }
+      });
       $('.row').sortable({
         connectWith: '.row',
         placeholder: 'box placeholder',
@@ -154,16 +253,27 @@
           ui.draggable.remove();
         }
       });
+      
+      // Setup change tracking for widget options
+      $('.box .back input').live('change', function() {
+        var widget = $(this).parents('.box').attr('id');
+        changed.push(widget);
+      });
     });
     </script>
   </head>
   <body>
     <div id="menu"><div id="menu-inner">
-      <img src="/static/icons/gear.png" />
+      <img id="menu-edit" src="/static/icons/gear.png" />
       <a href="/login"><img src="/static/icons/key.png" /></a>
     </div></div>
+    <div id="library">
+      {% for widget in library %}
+      {{ widget }}
+      {% endfor %}
+    </div>
     {% for row in grid %}
-    <div class="row">
+    <div id="row{{ loop.index0 }}" class="row">
       {% for widget in row %}
       {{ widget.output }}
       {% endfor %}
