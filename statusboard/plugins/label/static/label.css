@@ -1,0 +1,31 @@
+.label {
+  float: left;
+  width: 190px;
+  height: 190px;
+  padding: 0;
+  background-color: transparent;
+}
+
+.label .front {
+  font-weight: bold;
+  font-size: 4em;
+  line-height: 200px;
+  color: #FFF;
+}
+
+.label .front a {
+  color: #FFF;
+  text-decoration: none;
+}
+
+.label .front a:hover {
+  text-decoration: underline;
+}
+
+.label .back {
+  height: 100%;
+}
+
+.label .back input {
+  width: 10em;
+}

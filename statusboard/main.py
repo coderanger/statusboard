@@ -1,3 +1,4 @@
+import os
 import random
 import simplejson
 from juno import *
@@ -13,6 +14,7 @@ init({ 'db_type': 'sqlite',
      })
 
 from utils import hex_random, add_new_widget
+from statusboard.plugins import load_plugins, plugin_registry
      
 Builder = model('Builder', 
     name='string',
@@ -36,16 +38,34 @@ Settings = model('Settings',
 default_grid = [
     [
         {'type': 'label', 'id': '1'}, 
-        {'type': 'builder', 'id': '2'},
-        {'type': 'builder', 'id': '3'},
+        #{'type': 'builder', 'id': '2'},
+        #{'type': 'builder', 'id': '3'},
     ],
     [
         {'type': 'label', 'id': '4'},
-        {'type': 'builder', 'id': '5'},
-        {'type': 'builder', 'id': '6'},
+        #{'type': 'builder', 'id': '5'},
+        #{'type': 'builder', 'id': '6'},
     ],
 ]
 default_grid_json = simplejson.dumps(default_grid)
+
+def render_widget(opts, css_out=None):
+    plugin = plugin_registry.get(opts['type'])
+    if plugin is None:
+        return render_error(opts)
+    ret = plugin['instance'].render(opts)
+    if css_out is not None:
+        css = plugin['instance'].css(opts)
+        if css is not None:
+            css_out.append('%s/%s'%(plugin['name'], css))
+    if len(ret) == 1:
+        # Simple string
+        return ret
+    else:
+        template_file, data = ret
+        template = plugin['templates'].get_template(template_file)
+        #print template, render_template(template, **data)
+        return render_template(template, **data)
 
 def render_builder(opts):
     data = {
@@ -64,11 +84,11 @@ def render_label(opts):
     return render_template(get_template('widget_label.html'), **data)
 
 def render_error(opts):
-    return render_template(get_template('widget_error.html'), id=opts['id'], error='Type %s unkown'%opts['type'])
+    return render_template(get_template('widget_error.html'), id=opts['id'], error='Type %s unknown'%opts['type'])
 
 widget_types = {
-    'builder': render_builder,
-    'label': render_label,
+    #'builder': render_builder,
+    #'label': render_label,
 }
 
 def load_settings(web):
@@ -95,16 +115,16 @@ def index(web):
     
     # Populate the widget library
     library = []
-    for name, fn in sorted(widget_types.iteritems()):
-        output = fn({'id': 'library-'+name})
+    for name in sorted(plugin_registry):
+        output = render_widget({'type': name, 'id': 'library-'+name})
         library.append(output)
     
     # Render all the widgets we need
+    css = []
     for row in web.grid:
         for widget_opts in row:
-            fn = widget_types.get(widget_opts['type'], render_error)
-            widget_opts['output'] = fn(widget_opts)
-    template('index.html', {'grid': web.grid, 'library': library})
+            widget_opts['output'] = render_widget(widget_opts, css)
+    template('index.html', {'grid': web.grid, 'library': library, 'css': css})
 
 @route('/ajax/layout')
 def ajax_layout(web):
@@ -139,7 +159,7 @@ def ajax_add(web):
     user_settings.save()
     
     # Render the new widget and send to the browser
-    output = widget_types.get(new_widget['type'], render_error)(new_widget)
+    output = render_widget(new_widget)
     append(simplejson.dumps({'output': output}))
 
 @route('/ajax/config')
@@ -168,7 +188,7 @@ def ajax_config(web):
     # Render output
     output = {}
     for widget_id in changed:
-        output[widget_id] = widget_types.get(widgets[widget_id]['type'], render_error)(widgets[widget_id])
+        output[widget_id] = render_widget(widgets[widget_id])
     append(simplejson.dumps({'output': output}))
 
 @route('/debug/grid')
@@ -185,6 +205,25 @@ def favicon(web):
 def mock(web):
     template('mock.html', {})
 
+@route('/plugin/:plugin/:file')
+def plugin_static(web, plugin, file):
+    plugin = plugin_registry.get(plugin)
+    if plugin is None:
+        error(404)
+        return
+    file = os.path.join(plugin['static'], file)
+    realfile = os.path.realpath(file)
+    if not realfile.startswith(os.path.realpath(plugin['static'])):
+        notfound("that file could not be found/served")
+    elif yield_file(file) != 7:
+        notfound("that file could not be found/served")
+    mtime = os.stat(file).st_mtime
+    header('Last-Modified', time.strftime('%a, %d %b %Y %H:%M:%S +0000', time.gmtime(mtime)))
+    if config('static_expires'):
+        header('Expires', time.strftime('%a, %d %b %Y %H:%M:%S +0000', time.gmtime(time.time() + config('static_expires'))))
+    
+
+load_plugins()
 application = run()
 if __name__ == '__main__':
     werkzeug.run_simple('localhost', 8000, application, use_reloader=True)

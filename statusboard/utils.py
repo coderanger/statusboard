@@ -20,3 +20,4 @@ def add_new_widget(grid, add_row, add_before):
             return new_widget
     grid[add_row].append(new_widget)
     return new_widget
+
