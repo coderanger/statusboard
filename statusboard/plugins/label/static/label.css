@@ -1,15 +1,7 @@
-.label {
-  float: left;
-  width: 190px;
-  height: 190px;
-  padding: 0;
-  background-color: transparent;
-}
-
 .label .front {
   font-weight: bold;
   font-size: 4em;
-  line-height: 200px;
+  line-height: 180px;
   color: #FFF;
 }
 

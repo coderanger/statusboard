@@ -9,8 +9,12 @@ body {
   position: absolute;
   top: 0px;
   right: 0px;
-  width: 100px;
+  width: 110px;
   height: 52px;
+}
+
+#menu img {
+  border: 0;
 }
 
 #library {
@@ -31,16 +35,11 @@ body {
   height: 180px;
   margin: 5px;
   padding: 5px;
-  background-color: #4D0F4D;
   -webkit-border-radius: 18px;
   -moz-border-radius: 18px;
   border-radius: 18px;
   text-align: center;
   position: relative;
-}
-
-.loading {
-  background-color: transparent;
 }
 
 .red {
@@ -51,8 +50,31 @@ body {
   background-color: #0A660A;
 }
 
+.purple {
+  background-color: #4D0F4D;
+}
+
 .box .back {
   display: none;
+  height: 100%;
+  width: 100%;
+  border: 1px solid #000;
+  -webkit-border-radius: 18px;
+  -moz-border-radius: 18px;
+  border-radius: 18px;
+}
+
+.box .back .title {
+  color: #FFF;
+  background-color: #000;
+  padding: 6px 0px;
+  margin-bottom: 4px;
+  -webkit-border-top-left-radius: 18px;
+  -moz-border-radius-topleft: 18px;
+  border-radius-topleft: 18px;
+  -webkit-border-top-right-radius: 18px;
+  -moz-border-radius-topright: 18px;
+  border-radius-topright: 18px;
 }
 
 .box .front > div {
@@ -61,42 +83,12 @@ body {
   text-align: center;
 }
 
-.box .name {
-  position: static;
-  font-size: 1.5em;
-}
-
-.box .line1 {
-  top: 45px;
-}
-
-.box .progress {
-  width: 150px;
-  height: 25px;
-  position: absolute;
-  top: 78px;
-  left: 15px;
-  background-color: #777;
-  border: 1px #000 solid;
-}
-
-.box .progress .progress-inner {
-  height: 25px;
-  width: 0;
-  background-color: #0F9999;
-}
-
-.box .line2 {
-  top: 125px;
-}
-
-.box .status {
-  bottom: 5px;
-  font-size: 1.3em;
-}
-
 .placeholder {
   background-color: #777;
+}
+
+.error .front {
+  line-height: 180px;
 }
 
 #trash {

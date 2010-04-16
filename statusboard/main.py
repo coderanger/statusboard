@@ -15,20 +15,6 @@ init({ 'db_type': 'sqlite',
 
 from utils import hex_random, add_new_widget
 from statusboard.plugins import load_plugins, plugin_registry
-     
-Builder = model('Builder', 
-    name='string',
-    ts='datetime',
-    state='string',
-    broken_ts='datetime',
-    current_gimme='string',
-    current_svn='string',
-    last_full_time='integer',
-    current_time='integer',
-    last_build='string',
-    gimme_branch='string',
-    svn_branch='string'
-)
 
 Settings = model('Settings',
     user='string',
@@ -67,29 +53,8 @@ def render_widget(opts, css_out=None):
         #print template, render_template(template, **data)
         return render_template(template, **data)
 
-def render_builder(opts):
-    data = {
-        'id': opts['id'],
-        'label': opts.get('label', 'Builder'),
-        'progress': random.randint(1, 100),
-    }
-    return render_template(get_template('widget_builder.html'), **data)
-
-def render_label(opts):
-    data = {
-        'id': opts['id'],
-        'label': opts.get('label', 'Label'),
-        'link': opts.get('link', ''),
-    }
-    return render_template(get_template('widget_label.html'), **data)
-
 def render_error(opts):
     return render_template(get_template('widget_error.html'), id=opts['id'], error='Type %s unknown'%opts['type'])
-
-widget_types = {
-    #'builder': render_builder,
-    #'label': render_label,
-}
 
 def load_settings(web):
     if 'name' not in web.session:
@@ -200,10 +165,6 @@ def debug_grid(web):
 @route('/favicon.ico')
 def favicon(web):
     static_serve(web, 'favicon.ico')
-
-@route('/mock')
-def mock(web):
-    template('mock.html', {})
 
 @route('/plugin/:plugin/:file')
 def plugin_static(web, plugin, file):
