@@ -93,7 +93,7 @@ hr.divider {
   border-radius-topright: 18px;
 }
 
-.box .placeholder {
+.box.placeholder {
   background-color: #777;
 }
 
