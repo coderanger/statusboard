@@ -48,37 +48,36 @@ hr.divider {
 
 .box {
   float: left;
-  width: 180px;
-  height: 180px;
+  width: 190px;
+  height: 190px;
   margin: 5px;
-  padding: 5px;
-  -webkit-border-radius: 18px;
-  -moz-border-radius: 18px;
-  border-radius: 18px;
   text-align: center;
   position: relative;
 }
 
-.red {
+.box .red {
   background-color: #660A0A;
 }
 
-.green {
+.box .green {
   background-color: #0A660A;
 }
 
-.purple {
+.box .purple {
   background-color: #4D0F4D;
+}
+
+.box .front, .box .back {
+  height: 100%;
+  width: 100%;
+  -webkit-border-radius: 18px;
+  -moz-border-radius: 18px;
+  border-radius: 18px;
 }
 
 .box .back {
   display: none;
-  height: 100%;
-  width: 100%;
   border: 1px solid #000;
-  -webkit-border-radius: 18px;
-  -moz-border-radius: 18px;
-  border-radius: 18px;
 }
 
 .box .back .title {
@@ -94,12 +93,12 @@ hr.divider {
   border-radius-topright: 18px;
 }
 
-.placeholder {
+.box .placeholder {
   background-color: #777;
 }
 
 .error .front {
-  line-height: 180px;
+  line-height: 190px;
   color: #CC1414;
   font-weight: bold;
   white-space: nowrap;

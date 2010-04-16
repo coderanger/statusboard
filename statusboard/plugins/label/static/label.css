@@ -1,8 +1,7 @@
 .label .front {
   font-weight: bold;
   font-size: 4em;
-  line-height: 180px;
-  color: #FFF;
+  line-height: 190px;
 }
 
 .label .front a {
@@ -12,10 +11,6 @@
 
 .label .front a:hover {
   text-decoration: underline;
-}
-
-.label .back {
-  height: 100%;
 }
 
 .label .back input {
