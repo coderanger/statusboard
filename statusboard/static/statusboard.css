@@ -67,9 +67,12 @@ hr.divider {
   background-color: #4D0F4D;
 }
 
-.box .front, .box .back {
+.box .front, .box .back  {
   height: 100%;
   width: 100%;
+}
+
+.box .front, .box .back, .box.placeholder {
   -webkit-border-radius: 18px;
   -moz-border-radius: 18px;
   border-radius: 18px;
