@@ -108,7 +108,10 @@ def ajax_layout(web):
     row_count = web.input('rows')
     for i in xrange(int(row_count)):
         new_row = []
-        for widget_id in web.input('row%s'%i):
+        row_data = web.input('row%s'%i)
+        if not row_data:
+            continue
+        for widget_id in row_data:
             if widget_id in widgets:
                 new_row.append(widgets[widget_id])
         new_grid.append(new_row)
