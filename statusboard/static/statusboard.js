@@ -42,6 +42,13 @@ $(function() {
     connectWith: '.row',
     helper: 'clone',
     placeholder: 'box placeholder',
+    start: function(evt, ui) {
+        if($('.row').last().find('.box').length != 0) {
+          var newid = $('.row').length;
+          $('.row').last().after('<div id="row'+newid+'" class="row"></div>');
+          setup_sortable('#row'+newid);
+        }
+      },
     beforeStop: function(evt, ui) {
       if($(ui.placeholder).parents('#library').length > 0) {
         return;
@@ -75,33 +82,40 @@ $(function() {
       $(this).sortable('cancel');
     }
   });
-  $('.row').sortable({
-    connectWith: '.row',
-    placeholder: 'box placeholder',
-    start: function(evt, ui) {
-      $('#trash').show();
-    },
-    stop: function(evt, ui) {
-      $('#trash').hide();
-      
-      var serialized = '';
-      var max_i = 0;
-      $('.row').each(function(i) {
-        serialized += '&'+$(this).sortable('serialize', {key:'row'+i});
-        max_i = i;
-      });
-      $.ajax({
-        url: '/ajax/layout',
-        dataType: 'json',
-        data: 'rows='+(max_i+1)+serialized,
-        cache: false,
-        type: 'POST',
-        success: function(data) {
-          
+  function setup_sortable(x) {
+    $('.row').sortable({
+      connectWith: '.row',
+      placeholder: 'box placeholder',
+      start: function(evt, ui) {
+        $('#trash').show(); 
+        if($('.row').last().find('.box').length != 0) {
+          var newid = $('.row').length;
+          $('.row').last().after('<div id="row'+newid+'" class="row"></div>');
+          setup_sortable('#row'+newid);
         }
-      });
-    }
-  });
+      },
+      stop: function(evt, ui) {
+        $('#trash').hide();
+        
+        var serialized = '';
+        var max_i = 0;
+        $('.row').each(function(i) {
+          serialized += '&'+$(this).sortable('serialize', {key:'row'+i});
+          max_i = i;
+        });
+        $.ajax({
+          url: '/ajax/layout',
+          dataType: 'json',
+          data: 'rows='+(max_i+1)+serialized,
+          cache: false,
+          type: 'POST',
+          success: function(data) {
+          }
+        });
+      }
+    });
+  }
+  setup_sortable('.row');
   $('#trash').droppable({
     hoverClass: 'hover',
     tolerance: 'touch',
