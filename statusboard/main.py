@@ -58,7 +58,7 @@ def render_widget(opts, css_out=None, js_out=None):
         return render_template(template, **data)
 
 def render_error(opts):
-    return render_template(get_template('widget_error.html'), id=opts['id'], error='Type %s unknown'%opts['type'])
+    return render_template(get_template('widget_error.html'), id=opts['id'], error='Type "%s" unknown'%opts['type'])
 
 def load_settings(web):
     if 'name' not in web.session:
