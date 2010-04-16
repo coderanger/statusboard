@@ -37,7 +37,7 @@ $(function() {
     }
     optionsMode = !optionsMode;
   });
-  $('.library-inner').children().not('.library-title').wrap('<div class="library-wrapper" />');
+  $('.library-inner').children().not('.library-title').wrap('<div class="library-wrapper" style="width: 200px; height: 200px;" />');
   $('.library-wrapper').sortable({
     connectWith: '.row',
     helper: 'clone',
