@@ -94,12 +94,6 @@ hr.divider {
   border-radius-topright: 18px;
 }
 
-.box .front > div {
-  position: absolute;
-  width: 180px;
-  text-align: center;
-}
-
 .placeholder {
   background-color: #777;
 }
