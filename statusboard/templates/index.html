@@ -19,7 +19,7 @@
       {% for widget in library %}
       <div class="library-inner">
         {{ widget.output }}
-        <div class="library-title">{{ widget.name }}</div>
+        <div class="library-title">{{ widget.name.title() }}</div>
       </div>
       {% endfor %}
       <hr class="divider" />
