@@ -5,9 +5,9 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
     <script src="/static/statusboard.js"></script>
-    <link rel="stylesheet" href="/static/statusboard.css" type="text/css">
+    <link rel="stylesheet" href="/static/statusboard.css" type="text/css" />
     {% for path in css %}
-    <link rel="stylesheet" href="/plugin/{{ path }}" type="text/css">
+    <link rel="stylesheet" href="/plugin/{{ path }}" type="text/css" />
     {% endfor %}
   </head>
   <body>
@@ -17,7 +17,10 @@
     </div></div>
     <div id="library">
       {% for widget in library %}
-      {{ widget }}
+      <div class="library-inner">
+        {{ widget.output }}
+        <div class="library-title">{{ widget.name }}</div>
+      </div>
       {% endfor %}
     </div>
     {% for row in grid %}

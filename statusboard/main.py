@@ -43,7 +43,7 @@ def render_widget(opts, css_out=None):
     if css_out is not None:
         css = plugin['instance'].css(opts)
         if css is not None:
-            css_out.append('%s/%s'%(plugin['name'], css))
+            css_out.add('%s/%s'%(plugin['name'], css))
     if len(ret) == 1:
         # Simple string
         return ret
@@ -82,10 +82,10 @@ def index(web):
     library = []
     for name in sorted(plugin_registry):
         output = render_widget({'type': name, 'id': 'library-'+name})
-        library.append(output)
+        library.append({'output': output, 'name': name})
     
     # Render all the widgets we need
-    css = []
+    css = set()
     for row in web.grid:
         for widget_opts in row:
             widget_opts['output'] = render_widget(widget_opts, css)

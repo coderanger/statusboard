@@ -19,9 +19,21 @@ body {
 
 #library {
   display: none;
-  height: 200px;
+  height: 220px;
   background-color: #444;
   border-bottom: 4px #111 solid;
+}
+
+#library .library-inner {
+  float: left;
+}
+
+#library .box {
+  float: none;
+}
+
+#library .library-title {
+  text-align: center;
 }
 
 .row {

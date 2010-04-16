@@ -37,11 +37,15 @@ $(function() {
     }
     optionsMode = !optionsMode;
   });
-  $('#library').children().wrap('<div class="library-wrapper" />');
+  $('.library-inner').children().not('.library-title').wrap('<div class="library-wrapper" />');
   $('.library-wrapper').sortable({
     connectWith: '.row',
     helper: 'clone',
+    placeholder: 'box placeholder',
     beforeStop: function(evt, ui) {
+      if($(ui.placeholder).parents('#library').length > 0) {
+        return;
+      }
       var add_before = $(ui.placeholder).next();
       var new_creating = creating;
       creating += 1;
