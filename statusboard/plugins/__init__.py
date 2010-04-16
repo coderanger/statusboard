@@ -14,6 +14,12 @@ class PluginMeta(type):
 
 class Plugin(object):
     __metaclass__ = PluginMeta
+    
+    def css(self, opts):
+        pass
+    
+    def js(self, opts):
+        pass
 
 
 def load_plugins():

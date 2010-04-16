@@ -35,7 +35,7 @@ default_grid = [
 ]
 default_grid_json = simplejson.dumps(default_grid)
 
-def render_widget(opts, css_out=None):
+def render_widget(opts, css_out=None, js_out=None):
     plugin = plugin_registry.get(opts['type'])
     if plugin is None:
         return render_error(opts)
@@ -44,6 +44,10 @@ def render_widget(opts, css_out=None):
         css = plugin['instance'].css(opts)
         if css is not None:
             css_out.add('%s/%s'%(plugin['name'], css))
+    if js_out is not None:
+        js = plugin['instance'].js(opts)
+        if js is not None:
+            js_out.add('%s/%s'%(plugin['name'], js))
     if len(ret) == 1:
         # Simple string
         return ret
@@ -86,10 +90,11 @@ def index(web):
     
     # Render all the widgets we need
     css = set()
+    js = set()
     for row in web.grid:
         for widget_opts in row:
-            widget_opts['output'] = render_widget(widget_opts, css)
-    template('index.html', {'grid': web.grid, 'library': library, 'css': css})
+            widget_opts['output'] = render_widget(widget_opts, css, js)
+    template('index.html', {'grid': web.grid, 'library': library, 'css': css, 'js': js})
 
 @route('/ajax/layout')
 def ajax_layout(web):

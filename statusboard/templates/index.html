@@ -6,8 +6,9 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
     <script src="/static/statusboard.js"></script>
     <link rel="stylesheet" href="/static/statusboard.css" type="text/css" />
-    {% for path in css %}
-    <link rel="stylesheet" href="/plugin/{{ path }}" type="text/css" />
+    {% for path in css %}<link rel="stylesheet" href="/plugin/{{ path }}" type="text/css" />
+    {% endfor %}
+    {% for path in js %}<script src="/plugin/{{ path }}"></script>
     {% endfor %}
   </head>
   <body>
