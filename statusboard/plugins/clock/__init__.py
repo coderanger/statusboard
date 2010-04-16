@@ -1,4 +1,3 @@
-import time
 from statusboard.plugins import Plugin
 
 class Clock(Plugin):
