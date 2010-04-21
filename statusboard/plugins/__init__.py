@@ -1,5 +1,6 @@
 import os
 import os.path
+import datetime
 import jinja2
 
 plugin_registry = {}
@@ -9,6 +10,11 @@ class PluginMeta(type):
     def __init__(cls, name, bases, d):
         super(PluginMeta, cls).__init__(name, bases, d)
         if name != 'Plugin':
+            name = name.lower()
+            if name.endswith('plugin') or name.endswith('widget'):
+                cls._plugin_name = name[:-6]
+            else:
+                cls._plugin_name = name
             PluginMeta.plugins.append(cls)
 
 
@@ -20,6 +26,11 @@ class Plugin(object):
     
     def js(self):
         pass
+    
+    def gather_request(self, arg, user=None):
+        from main import GatherRequest
+        request = GatherRequest(plugin=self._plugin_name, user=user, ts=datetime.datetime.now(), arg=arg)
+        request.save()
 
 
 def load_plugins():
@@ -33,9 +44,7 @@ def load_plugins():
         print 'Loading plugin from %s'%('statusboard.plugins.'+name)
         __import__('statusboard.plugins.'+name, None, None, [''])
         for plugin in PluginMeta.plugins:
-            plugin_name = plugin.__name__.lower()
-            if plugin_name.endswith('plugin') or plugin_name.endswith('widget'):
-                plugin_name = plugin_name[:-6]
+            plugin_name = plugin._plugin_name
             print 'Found plugin %s'%plugin_name
             plugin_registry[plugin_name] = {
                 'name': plugin_name,

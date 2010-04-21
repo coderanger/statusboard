@@ -21,6 +21,13 @@ Settings = model('Settings',
     grid='string' # JSON encoded data
 )
 
+GatherRequest = model('GatherRequest',
+    plugin='string',
+    user='string',
+    ts='datetime',
+    arg='string',
+)
+
 default_grid = [
     [
         {'type': 'label', 'id': '1'}, 
@@ -189,6 +196,20 @@ def plugin_static(web, plugin, file):
     if config('static_expires'):
         header('Expires', time.strftime('%a, %d %b %Y %H:%M:%S +0000', time.gmtime(time.time() + config('static_expires'))))
     
+@route('/gather')
+def gather(web):
+    sess = session()
+    for request in GatherRequest.find().all():
+        append('Processing %s,%s,%s\n'%(request.plugin, request.arg, request.user))
+        plugin = plugin_registry.get(request.plugin)
+        if plugin is None:
+            continue
+        kwargs = {}
+        if request.user:
+            kwargs['user'] = request.user
+        plugin['instance'].gather(request.arg, **kwargs)
+        sess.delete(request)
+    sess.commit()
 
 load_plugins()
 application = run()
