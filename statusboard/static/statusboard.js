@@ -133,7 +133,7 @@ $(function() {
   });
   
   // Setup change tracking for widget options
-  $('.box .back input').live('change', function() {
+  $('.box .back input, .box .back select').live('change', function() {
     var widget = $(this).parents('.box').attr('id');
     changed.push(widget);
   });
