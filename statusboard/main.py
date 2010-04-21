@@ -198,6 +198,7 @@ def plugin_static(web, plugin, file):
     
 @route('/gather')
 def gather(web):
+    append('<pre>')
     sess = session()
     for request in GatherRequest.find().all():
         append('Processing %s,%s,%s\n'%(request.plugin, request.arg, request.user))
@@ -210,6 +211,7 @@ def gather(web):
         plugin['instance'].gather(request.arg, **kwargs)
         sess.delete(request)
     sess.commit()
+    append('</pre>')
 
 load_plugins()
 application = run()
