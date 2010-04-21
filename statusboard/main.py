@@ -172,7 +172,7 @@ def debug_grid(web):
 def favicon(web):
     static_serve(web, 'favicon.ico')
 
-@route('/plugin/:plugin/:file')
+@route('/plugin/static/:plugin/:file')
 def plugin_static(web, plugin, file):
     plugin = plugin_registry.get(plugin)
     if plugin is None:
