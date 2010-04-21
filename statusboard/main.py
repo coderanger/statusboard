@@ -40,14 +40,6 @@ def render_widget(opts, css_out=None, js_out=None):
     if plugin is None:
         return render_error(opts)
     ret = plugin['instance'].render(opts)
-    if css_out is not None:
-        css = plugin['instance'].css(opts)
-        if css is not None:
-            css_out.add('%s/%s'%(plugin['name'], css))
-    if js_out is not None:
-        js = plugin['instance'].js(opts)
-        if js is not None:
-            js_out.add('%s/%s'%(plugin['name'], js))
     if len(ret) == 1:
         # Simple string
         return ret
@@ -84,17 +76,23 @@ def index(web):
     
     # Populate the widget library
     library = []
-    for name in sorted(plugin_registry):
+    css_files = set()
+    js_files = set()
+    for name, plugin in sorted(plugin_registry.iteritems()):
+        css = plugin['instance'].css()
+        if css is not None:
+            css_files.add('%s/%s'%(plugin['name'], css))
+        js = plugin['instance'].js()
+        if js is not None:
+            js_files.add('%s/%s'%(plugin['name'], js))
         output = render_widget({'type': name, 'id': 'library-'+name})
         library.append({'output': output, 'name': name})
     
     # Render all the widgets we need
-    css = set()
-    js = set()
     for row in web.grid:
         for widget_opts in row:
             widget_opts['output'] = render_widget(widget_opts, css, js)
-    template('index.html', {'grid': web.grid, 'library': library, 'css': css, 'js': js})
+    template('index.html', {'grid': web.grid, 'library': library, 'css': css_files, 'js': js_files})
 
 @route('/ajax/layout')
 def ajax_layout(web):

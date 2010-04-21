@@ -15,10 +15,10 @@ class PluginMeta(type):
 class Plugin(object):
     __metaclass__ = PluginMeta
     
-    def css(self, opts):
+    def css(self):
         pass
     
-    def js(self, opts):
+    def js(self):
         pass
 
 

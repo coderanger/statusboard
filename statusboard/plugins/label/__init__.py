@@ -1,7 +1,7 @@
 from statusboard.plugins import Plugin
 
 class Label(Plugin):
-    def css(self, opts):
+    def css(self):
         return 'label.css'
     
     def render(self, opts):
