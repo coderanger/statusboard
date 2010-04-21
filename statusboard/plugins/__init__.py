@@ -29,8 +29,9 @@ class Plugin(object):
     
     def gather_request(self, arg, user=None):
         from main import GatherRequest
-        request = GatherRequest(plugin=self._plugin_name, user=user, ts=datetime.datetime.now(), arg=arg)
-        request.save()
+        if GatherRequest.find().filter_by(plugin=self._plugin_name, user=user, arg=arg).count() == 0:
+            request = GatherRequest(plugin=self._plugin_name, user=user, ts=datetime.datetime.now(), arg=arg)
+            request.save()
 
 
 def load_plugins():
