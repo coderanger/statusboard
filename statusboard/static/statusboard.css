@@ -63,6 +63,10 @@ hr.divider {
   position: relative;
 }
 
+.box2 {
+  width: 390px;
+}
+
 .box .red {
   background-color: #660A0A;
 }

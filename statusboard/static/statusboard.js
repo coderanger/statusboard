@@ -43,11 +43,13 @@ $(function() {
   });
   
   $('.library-inner').children().not('.library-title').wrap('<div class="library-wrapper" style="width: 200px; height: 200px;" />');
+  $('#library .box2').parents('.library-wrapper').width(400);
   $('.library-wrapper').sortable({
     connectWith: '.row',
     helper: 'clone',
     placeholder: 'box placeholder',
     start: function(evt, ui) {
+        $(ui.placeholder).width($(ui.helper).width());
         if($('.row').last().find('.box').length != 0) {
           var newid = $('.row').length;
           $('.row').last().after('<div id="row'+newid+'" class="row"></div>');
@@ -92,6 +94,7 @@ $(function() {
       connectWith: '.row',
       placeholder: 'box placeholder',
       start: function(evt, ui) {
+        $(ui.placeholder).width($(ui.helper).width());
         $('#trash').show(); 
         if($('.row').last().find('.box').length != 0) {
           var newid = $('.row').length;
