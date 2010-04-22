@@ -86,11 +86,9 @@ def index(web):
     css_files = set()
     js_files = set()
     for name, plugin in sorted(plugin_registry.iteritems()):
-        css = plugin['instance'].css()
-        if css is not None:
+        for css in plugin['instance'].css():
             css_files.add('%s/%s'%(plugin['name'], css))
-        js = plugin['instance'].js()
-        if js is not None:
+        for js in plugin['instance'].js():
             js_files.add('%s/%s'%(plugin['name'], js))
         output = render_widget({'type': name, 'id': 'library-'+name})
         library.append({'output': output, 'name': name})

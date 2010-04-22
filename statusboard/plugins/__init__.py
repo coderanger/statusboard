@@ -22,10 +22,10 @@ class Plugin(object):
     __metaclass__ = PluginMeta
     
     def css(self):
-        pass
+        return ()
     
     def js(self):
-        pass
+        return ()
     
     def gather_request(self, arg, user=None):
         from main import GatherRequest

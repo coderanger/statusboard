@@ -2,10 +2,10 @@ from statusboard.plugins import Plugin
 
 class Clock(Plugin):
     def css(self):
-        return 'clock.css'
+        yield 'clock.css'
     
     def js(self):
-        return 'clock.js'
+        yield 'clock.js'
     
     def render(self, opts):
         data = {
