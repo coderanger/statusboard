@@ -214,4 +214,13 @@ def gather(web):
 load_plugins()
 application = run()
 if __name__ == '__main__':
+    import kronos
+    s = kronos.ThreadedScheduler()
+    def run_gather():
+        import urllib2
+        print 'Running gather'
+        urllib2.urlopen('http://localhost:8000/gather').read()
+    s.add_interval_task(run_gather, 'run_gather', 60, 60, kronos.method.sequential, None, None)
+    s.start()
     werkzeug.run_simple('localhost', 8000, application, use_reloader=True)
+    s.stop()
