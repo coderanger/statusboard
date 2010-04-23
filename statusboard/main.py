@@ -181,7 +181,7 @@ def favicon(web):
 def plugin_static(web, plugin, file):
     plugin = plugin_registry.get(plugin)
     if plugin is None:
-        status(404)
+        notfound('plugin not found')
         return
     file = os.path.join(plugin['static'], file)
     realfile = os.path.realpath(file)
