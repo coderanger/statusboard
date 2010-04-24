@@ -27,12 +27,14 @@ class Plugin(object):
     def js(self):
         return ()
     
-    def gather_request(self, arg, user=None):
+    def gather_request(self, arg, user=None, run_for=300):
         from main import GatherRequest
-        if GatherRequest.find().filter_by(plugin=self._plugin_name, user=user, arg=arg).count() == 0:
-            request = GatherRequest(plugin=self._plugin_name, user=user, ts=datetime.datetime.now(), arg=arg)
-            request.save()
-
+        request = GatherRequest.find().filter_by(plugin=self._plugin_name, user=user, arg=arg).first()
+        if not request:
+            request = GatherRequest(plugin=self._plugin_name, user=user, ts=datetime.datetime.now(), until=datetime.datetime.now()+datetime.timedelta(seconds=run_for), arg=arg)
+        else:
+            request.until = datetime.datetime.now()+datetime.timedelta(seconds=run_for)
+        request.save()
 
 def load_plugins():
     plugin_base = os.path.dirname(__file__)

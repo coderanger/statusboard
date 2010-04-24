@@ -1,6 +1,7 @@
 import os
 import random
 import simplejson
+import datetime
 from juno import *
 import werkzeug
 init({ 'db_type': 'sqlite', 
@@ -25,6 +26,7 @@ GatherRequest = model('GatherRequest',
     plugin='string',
     user='string',
     ts='datetime',
+    until='datetime',
     arg='string',
 )
 
@@ -198,7 +200,10 @@ def plugin_static(web, plugin, file):
 def gather(web):
     append('<pre>')
     sess = session()
+    now = datetime.datetime.now()
     for request in GatherRequest.find().all():
+        sess.delete(request)
+        sess.commit()
         append('Processing %s,%s,%s\n'%(request.plugin, request.arg, request.user))
         plugin = plugin_registry.get(request.plugin)
         if plugin is None:
@@ -206,9 +211,16 @@ def gather(web):
         kwargs = {}
         if request.user:
             kwargs['user'] = request.user
-        plugin['instance'].gather(request.arg, **kwargs)
-        sess.delete(request)
-    sess.commit()
+        try:
+            plugin['instance'].gather(request.arg, **kwargs)
+        except Exception:
+            pass
+        
+        # Reshedule?
+        if now < request.until:
+            new_request = GatherRequest(plugin=request.plugin, user=request.user, ts=datetime.datetime.now(), until=request.until, arg=request.arg)
+            new_request.save()
+        
     append('</pre>')
 
 load_plugins()
