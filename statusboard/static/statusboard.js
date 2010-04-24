@@ -137,4 +137,40 @@ $(function() {
     var widget = $(this).parents('.box').attr('id');
     changed.push(widget);
   });
+  
+  // Setup auto-reload for needed widgets
+  var reload_interval = 30;
+  $('.row div[data-reload]').each(function() {
+    var time = parseInt($(this).attr('data-reload'), 10)
+    $(this).data('reload', time).data('reload-orig', time);
+  });
+  function run_reload() {
+    setTimeout(run_reload, reload_interval*1000);
+    var to_reload = [];
+    $('.row div[data-reload]').each(function() {
+      var time_left = $(this).data('reload');
+      time_left -= reload_interval;
+      if(time_left <= 0) {
+        time_left = $(this).data('reload-orig');
+        var widget = $(this).attr('id').substring(7);
+        to_reload.push(widget);
+      }
+      $(this).data('reload', time_left);
+    });
+    if(to_reload.length) {
+      $.ajax({
+        url: '/ajax/reload',
+        dataType: 'json',
+        data: {widgets:to_reload},
+        cache: false,
+        type: 'POST',
+        success: function(data) {
+          $.each(data.output, function(k, v) {
+            $('#widget_'+k).after(v).remove();
+          });
+        }
+      });
+    }
+  }
+  setTimeout(run_reload, reload_interval*1000);
 });

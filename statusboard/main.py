@@ -169,6 +169,21 @@ def ajax_config(web):
         output[widget_id] = render_widget(widgets[widget_id])
     append(simplejson.dumps({'output': output}))
 
+@route('/ajax/reload')
+def ajax_reload(web):
+    user_settings = load_settings(web)
+    # Build a lookup dict for the widgets
+    widgets = {}
+    for row in web.grid:
+        for widget in row:
+            widgets[widget['id']] = widget
+    
+    # Render output
+    output = {}
+    for widget_id in web.input('widgets[]'):
+        output[widget_id] = render_widget(widgets[widget_id])
+    append(simplejson.dumps({'output': output}))
+
 @route('/debug/grid')
 def debug_grid(web):
     from pprint import pformat
