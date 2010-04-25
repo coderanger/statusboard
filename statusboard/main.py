@@ -2,6 +2,7 @@ import os
 import random
 import simplejson
 import datetime
+import traceback
 from juno import *
 import werkzeug
 init({ 'db_type': 'sqlite', 
@@ -232,7 +233,7 @@ def gather(web):
         try:
             plugin['instance'].gather(request.arg, **kwargs)
         except Exception:
-            pass
+            traceback.print_exc()
         
         # Reshedule?
         if now < request.until:

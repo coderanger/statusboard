@@ -1,6 +1,7 @@
 import os
 import os.path
 import datetime
+import traceback
 import jinja2
 
 plugin_registry = {}
@@ -47,8 +48,8 @@ def load_plugins():
         print 'Loading plugin from %s'%('statusboard.plugins.'+name)
         try:
             __import__('statusboard.plugins.'+name, None, None, [''])
-        except Exception, e:
-            print e
+        except Exception:
+            traceback.print_exc()
             continue
         for plugin in PluginMeta.plugins:
             plugin_name = plugin._plugin_name
