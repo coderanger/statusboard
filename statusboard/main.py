@@ -180,7 +180,10 @@ def ajax_reload(web):
     
     # Render output
     output = {}
-    for widget_id in web.input('widgets[]'):
+    to_reload = web.input('widgets[]')
+    if not isinstance(to_reload, (list, tuple)):
+        to_reload = [to_reload]
+    for widget_id in to_reload:
         output[widget_id] = render_widget(widgets[widget_id])
     append(simplejson.dumps({'output': output}))
 
