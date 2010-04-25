@@ -168,6 +168,9 @@ $(function() {
         cache: false,
         type: 'POST',
         success: function(data) {
+          if(!data) {
+            return;
+          }
           $.each(data.output, function(k, v) {
             $('#widget_'+k).after(v).remove();
             $('#widget_'+k).trigger('statusboard-reload', [false]);
