@@ -115,6 +115,7 @@ hr.divider {
 .error .front {
   line-height: 190px;
   color: #CC1414;
+  background-color: #444;
   font-weight: bold;
   white-space: nowrap;
 }
