@@ -67,35 +67,35 @@ hr.divider {
   width: 390px;
 }
 
-.box .red {
+.widget .red {
   background-color: #660A0A;
 }
 
-.box .green {
+.widget .green {
   background-color: #0A660A;
 }
 
-.box .purple {
+.widget .purple {
   background-color: #4D0F4D;
 }
 
-.box .front, .box .back  {
+.widget .front, .widget .back  {
   height: 100%;
   width: 100%;
 }
 
-.box .front, .box .back, .box.placeholder {
+.widget .front, .widget .back, .widget.placeholder {
   -webkit-border-radius: 18px;
   -moz-border-radius: 18px;
   border-radius: 18px;
 }
 
-.box .back {
+.widget .back {
   display: none;
   border: 1px solid #000;
 }
 
-.box .back .title {
+.widget .back .title {
   color: #FFF;
   background-color: #000;
   padding: 6px 0px;
@@ -108,7 +108,7 @@ hr.divider {
   border-radius-topright: 18px;
 }
 
-.box.placeholder {
+.widget.placeholder {
   background-color: #777;
 }
 
