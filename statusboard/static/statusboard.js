@@ -30,6 +30,7 @@ $(function() {
         success: function(data) {
           $.each(data.output, function(k, v) {
             $('#widget_'+k).after(v).remove();
+            $('#widget_'+k).trigger('statusboard-reload', [false]);
           });
         }
       });
@@ -81,7 +82,7 @@ $(function() {
           var tmp = $('#creating'+new_creating);
           var new_widget = tmp.after(data.output).next();
           tmp.remove();
-          new_widget.find('.front').hide().end().find('.back').show();
+          new_widget.trigger('statusboard-reload', [true]).find('.front').hide().end().find('.back').show();
         }
       })
     },
@@ -167,6 +168,7 @@ $(function() {
         success: function(data) {
           $.each(data.output, function(k, v) {
             $('#widget_'+k).after(v).remove();
+            $('#widget_'+k).trigger('statusboard-reload', [false]);
           });
         }
       });
