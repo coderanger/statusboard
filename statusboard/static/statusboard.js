@@ -147,6 +147,8 @@ $(function() {
   });
   function run_reload() {
     setTimeout(run_reload, reload_interval*1000);
+    if(optionsMode)
+      return;
     var to_reload = [];
     $('.row div[data-reload]').each(function() {
       var time_left = $(this).data('reload');
