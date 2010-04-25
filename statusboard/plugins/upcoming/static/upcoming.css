@@ -27,13 +27,13 @@
 
 .upcoming .event .date {
   color: #AAA;
-  width: 40px;
+  width: 50px;
   padding-right: 3px;
   text-align: right;
 }
 
 .upcoming .event .title {
-  width: 147px;
+  width: 137px;
   height: 1.3em;
   overflow: hidden;
   text-align: left;

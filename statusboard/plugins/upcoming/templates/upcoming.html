@@ -1,19 +1,25 @@
 <div id="widget_{{ id }}" class="widget box upcoming">
   <div class="front">
     <div class="today">Sunday, 4/25</div>
-    <div class="events">
+    <div class="events">{#
       <div class="event">
         <div class="date">4/25</div>
         <div class="title">Some title</div>
       </div>
       <div class="event">
         <div class="date">4/26</div>
-        <div class="title">Another event with a long title</div>
+        <div class="title long">Another event with a long title</div>
       </div>
       <div class="event">
         <div class="date">5/1</div>
         <div class="title">Next month</div>
+      </div>#}
+      {% for event in events[:8] %}
+      <div class="event">
+        <div class="date">{{ event.date.month }}/{{ event.date.day }}</div>
+        <div class="title {% if event.title|length > 10 %}long{% endif %}">{{ event.title }}</div>
       </div>
+      {% endfor %}
     </div>
   </div>
   <div class="back">

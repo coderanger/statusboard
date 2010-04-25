@@ -1,5 +1,5 @@
 $(function() {
-  $('.upcoming .title').wrapInner('<div class="title-inner"><span></span></div>').live('mouseenter', function() {
+  $('.upcoming .title.long').wrapInner('<div class="title-inner"><span></span></div>').live('mouseenter', function() {
     var self = $(this).find('.title-inner');
     function scroll() {
       var new_margin = self.data('title-scroll-margin') + 1;
