@@ -45,7 +45,11 @@ def load_plugins():
         if not os.path.isfile(os.path.join(path, '__init__.py')):
             continue
         print 'Loading plugin from %s'%('statusboard.plugins.'+name)
-        __import__('statusboard.plugins.'+name, None, None, [''])
+        try:
+            __import__('statusboard.plugins.'+name, None, None, [''])
+        except Exception, e:
+            print e
+            continue
         for plugin in PluginMeta.plugins:
             plugin_name = plugin._plugin_name
             print 'Found plugin %s'%plugin_name
