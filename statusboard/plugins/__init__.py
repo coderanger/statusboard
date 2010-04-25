@@ -21,6 +21,7 @@ class PluginMeta(type):
 
 class Plugin(object):
     __metaclass__ = PluginMeta
+    disable = False
     
     def css(self):
         return ()
@@ -52,6 +53,8 @@ def load_plugins():
             traceback.print_exc()
             continue
         for plugin in PluginMeta.plugins:
+            if plugin.disable:
+                continue
             plugin_name = plugin._plugin_name
             print 'Found plugin %s'%plugin_name
             plugin_registry[plugin_name] = {
