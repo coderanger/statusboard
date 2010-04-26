@@ -74,9 +74,6 @@ class Upcoming(Plugin):
         
         # Add new events
         for vevent in ical.walk('VEVENT'):
-            #RRULE:FREQ=DAILY;WKST=SU;UNTIL=20100428T100000Z
-            print vevent['summary']
-            print now
             dtstart = vevent['DTSTART'].dt
             if not isinstance(dtstart, datetime.datetime):
                 dtstart = datetime.datetime.combine(dtstart, datetime.time(0))
@@ -90,6 +87,5 @@ class Upcoming(Plugin):
                     if dt >= now:
                         CalendarEvent(url=url, date=dt.astimezone(tz.tzutc()), title=vevent['SUMMARY']).add()
             elif dtstart >= now:
-                print dtstart
                 CalendarEvent(url=url, date=dtstart.astimezone(tz.tzutc()), title=vevent['SUMMARY']).add()
         session().commit()
