@@ -6,6 +6,7 @@
   color: #FFF;
   background-color: #000;
   padding: 6px 0px;
+  font-weight: bold;
   -webkit-border-top-left-radius: 18px;
   -moz-border-radius-topleft: 18px;
   border-radius-topleft: 18px;
@@ -16,13 +17,14 @@
 
 .upcoming .event {
   width: 100%;
-  margin: 4px;
   clear: left;
 }
 
 .upcoming .event .date, .upcoming .event .title {
   float: left;
+  height: 20px;
   font-family: Verdana, Geneva, sans-serif;
+  font-size: 15px;
 }
 
 .upcoming .event .date {
@@ -34,7 +36,6 @@
 
 .upcoming .event .title {
   width: 137px;
-  height: 1.3em;
   overflow: hidden;
   text-align: left;
 }
