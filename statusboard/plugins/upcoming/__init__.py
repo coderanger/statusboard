@@ -62,7 +62,7 @@ class Upcoming(Plugin):
             #RRULE:FREQ=DAILY;WKST=SU;UNTIL=20100428T100000Z
             if rrule and 'RRULE' in vevent:
                 recur = rrule.rrulestr(str(vevent['RRULE']), dtstart=vevent['DTSTART'].dt.replace(tzinfo=icalendar.prop.Utc()))
-                for dt in recur[:8]:
+                for dt in recur[:20]:
                     CalendarEvent(url=url, date=dt, title=vevent['SUMMARY']).add()
             else:
                 CalendarEvent(url=url, date=vevent['DTSTART'].dt, title=vevent['SUMMARY']).add()
