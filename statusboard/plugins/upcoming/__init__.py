@@ -42,8 +42,8 @@ class Upcoming(Plugin):
         # Check when we last updated this URL
         cal = Calendar.find().filter_by(url=url).first()
         if cal and cal.ts and datetime.datetime.now() - cal.ts < datetime.timedelta(hours=1):
-            #return
-            pass
+            return
+            #pass
         
         # Load the calendar
         data = urllib2.urlopen(url).read()
