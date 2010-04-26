@@ -32,7 +32,7 @@ class Upcoming(Plugin):
         if opts.get('url'):
             self.gather_request(opts['url'], run_for=3600*24)
             data['cal'] = Calendar.find().filter_by(url=opts['url']).first()
-            data['events'] = CalendarEvent.find().filter_by(url=opts['url']).all()
+            data['events'] = CalendarEvent.find().filter_by(url=opts['url']).filter(CalendarEvent.date>datetime.datetime.now()).order_by(CalendarEvent.date)[:8]
         return 'upcoming.html', data
     
     def gather(self, url):
