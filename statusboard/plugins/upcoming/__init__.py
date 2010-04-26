@@ -38,7 +38,7 @@ class Upcoming(Plugin):
     def gather(self, url):
         # Check when we last updated this URL
         cal = Calendar.find().filter_by(url=url).first()
-        if cal and cal.ts and datetime.datetime.now() - cal.ts < datetime.tiemdelta(hours=1):
+        if cal and cal.ts and datetime.datetime.now() - cal.ts < datetime.timedelta(hours=1):
             return
         
         # Load the calendar
