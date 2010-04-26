@@ -1,8 +1,14 @@
 import urllib2
 import icalendar
+import icalendar.prop
 import datetime
 from juno import *
 from statusboard.plugins import Plugin
+
+try:
+    from dateutil import rrule
+except ImportError:
+    rrule = None
 
 Calendar = model('Calendar',
     url='string',
@@ -53,5 +59,11 @@ class Upcoming(Plugin):
             cal = Calendar(url=url).add()
         cal.ts = datetime.datetime.now()
         for vevent in ical.walk('VEVENT'):
-            CalendarEvent(url=url, date=vevent['DTSTART'].dt, title=vevent['SUMMARY']).add()
+            #RRULE:FREQ=DAILY;WKST=SU;UNTIL=20100428T100000Z
+            if rrule and 'RRULE' in vevent:
+                recur = rrule.rrulestr(str(vevent['RRULE']), dtstart=vevent['DTSTART'].dt.replace(tzinfo=icalendar.prop.Utc()))
+                for dt in recur[:8]:
+                    CalendarEvent(url=url, date=dt, title=vevent['SUMMARY']).add()
+            else:
+                CalendarEvent(url=url, date=vevent['DTSTART'].dt, title=vevent['SUMMARY']).add()
         session().commit()
