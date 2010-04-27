@@ -93,7 +93,7 @@ $(function() {
   function setup_sortable(x) {
     $('.row').sortable({
       connectWith: '.row',
-      placeholder: 'box placeholder',
+      placeholder: 'widget box placeholder',
       start: function(evt, ui) {
         $(ui.placeholder).width($(ui.helper).width());
         $('#trash').show(); 
