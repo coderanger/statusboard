@@ -48,7 +48,7 @@ $(function() {
   $('.library-wrapper').sortable({
     connectWith: '.row',
     helper: 'clone',
-    placeholder: 'box placeholder',
+    placeholder: 'widget box placeholder',
     start: function(evt, ui) {
         $(ui.placeholder).width($(ui.helper).width());
         if($('.row').last().find('.box').length != 0) {
