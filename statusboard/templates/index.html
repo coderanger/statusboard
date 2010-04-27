@@ -3,7 +3,7 @@
   <head>
     <title>Status Board</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.js"></script>
     <script src="/static/statusboard.js"></script>
     <link rel="stylesheet" href="/static/statusboard.css" type="text/css" />
     {% for path in css %}<link rel="stylesheet" href="/plugin/static/{{ path }}" type="text/css" />
@@ -26,10 +26,11 @@
       <hr class="divider" />
     </div>
     {% for row in grid %}
-    <div id="row{{ loop.index0 }}" class="row">
+    <div id="row{{ loop.index0 }}" class="row {% if loop.length==0 %}empty{% endif %}">
       {% for widget in row %}
       {{ widget.output }}
       {% endfor %}
+      <div class="clear"></div>
     </div>
     {% endfor %}
     <div id="trash"><img src="/static/icons/trash.png" /></div>

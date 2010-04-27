@@ -49,12 +49,14 @@ $(function() {
     connectWith: '.row',
     helper: 'clone',
     placeholder: 'widget box placeholder',
+    tolerance: 'pointer',
     start: function(evt, ui) {
         $(ui.placeholder).width($(ui.helper).width());
-        if($('.row').last().find('.box').length != 0) {
+        if($('.row').last().find('.widget').length != 0) {
           var newid = $('.row').length;
-          $('.row').last().after('<div id="row'+newid+'" class="row"></div>');
+          $('.row').last().after('<div id="row'+newid+'" class="row empty"><div class="clear"></div></div>');
           setup_sortable('#row'+newid);
+          $('.library-wrapper').sortable('refresh');
         }
       },
     beforeStop: function(evt, ui) {
@@ -91,17 +93,30 @@ $(function() {
     }
   });
   function setup_sortable(x) {
-    $('.row').sortable({
+    $(x).sortable({
       connectWith: '.row',
       placeholder: 'widget box placeholder',
+      tolerance: 'pointer',
       start: function(evt, ui) {
         $(ui.placeholder).width($(ui.helper).width());
         $('#trash').show(); 
-        if($('.row').last().find('.box').length != 0) {
+        if($('.row').last().find('.widget').length != 0) {
           var newid = $('.row').length;
-          $('.row').last().after('<div id="row'+newid+'" class="row"></div>');
+          $('.row').last().after('<div id="row'+newid+'" class="row empty"><div class="clear"></div></div>');
           setup_sortable('#row'+newid);
+          $('.row').sortable('refresh');
         }
+      },
+      change: function(evt, ui) {
+        $('.row').each(function() {
+          if($(this).find('.widget').length == 0) {
+            console.log('Adding empty');
+            $(this).addClass('empty');
+          } else {
+            console.log('Remove empty');
+            $(this).removeClass('empty');
+          }
+        });
       },
       stop: function(evt, ui) {
         $('#trash').hide();
@@ -134,8 +149,8 @@ $(function() {
   });
   
   // Setup change tracking for widget options
-  $('.box .back input, .box .back select').live('change', function() {
-    var widget = $(this).parents('.box').attr('id');
+  $('.widget .back input, .widget .back select').live('change', function() {
+    var widget = $(this).parents('.widget').attr('id');
     changed.push(widget);
   });
   

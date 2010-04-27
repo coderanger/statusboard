@@ -47,11 +47,15 @@ hr.divider {
 
 .row {
   clear: both;
-  height: 200px;
 }
 
 .row.empty {
   width: 200px;
+  height: 200px;
+}
+
+.row .clear {
+  clear: both;
 }
 
 .box {
