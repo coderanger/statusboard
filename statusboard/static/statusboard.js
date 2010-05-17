@@ -66,7 +66,7 @@ $(function() {
       var add_before = $(ui.placeholder).next();
       var new_creating = creating;
       creating += 1;
-      var spinner = '<div id="creating'+new_creating+'"class="box loading"><img src="/static/spinner.gif" /></div>';
+      var spinner = '<div id="creating'+new_creating+'" class="box loading"><img src="/static/spinner.gif" /></div>';
       if(add_before.length) {
         add_before.before(spinner);
       } else {
