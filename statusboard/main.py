@@ -93,7 +93,7 @@ def index(web):
             css_files.add('%s/%s'%(plugin['name'], css))
         for js in plugin['instance'].js():
             js_files.add('%s/%s'%(plugin['name'], js))
-        output = render_widget({'type': name, 'id': 'library-'+name})
+        output = render_widget({'type': name, 'id': 'library-'+name, 'library': True})
         library.append({'output': output, 'name': name})
     
     # Render all the widgets we need

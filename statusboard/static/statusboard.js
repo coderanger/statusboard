@@ -44,7 +44,7 @@ $(function() {
   });
   
   $('.library-inner').children().not('.library-title').wrap('<div class="library-wrapper" style="width: 200px; height: 200px;" />');
-  $('#library .box2').parents('.library-wrapper').width(400);
+  //$('#library .box2').parents('.library-wrapper').width(400);
   $('.library-wrapper').sortable({
     connectWith: '.row',
     helper: 'clone',

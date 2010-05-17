@@ -37,8 +37,10 @@ hr.divider {
   float: left;
 }
 
-#library .box {
+#library .widget {
   float: none;
+  width: 190px;
+  height: 190px;
 }
 
 #library .library-title {
@@ -58,17 +60,27 @@ hr.divider {
   clear: both;
 }
 
-.box {
+.widget {
   float: left;
-  width: 190px;
-  height: 190px;
   margin: 5px;
   text-align: center;
   position: relative;
+  
+}
+
+.box {
+  width: 190px;
+  height: 190px;
 }
 
 .box2 {
   width: 390px;
+  height: 190px;
+}
+
+.strip {
+  width: 590px;
+  height: 90px;
 }
 
 .widget .red {
