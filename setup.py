@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name = 'StatusBoard',
-    version = '1.0',
+    version = '0.1',
     packages = ['statusboard'],
     package_data = {'statusboard': ['templates/*.html', 'htdocs/*.js', 'htdocs/*.css']},
 
