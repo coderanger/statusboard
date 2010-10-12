@@ -1,35 +1,44 @@
+import datetime
+import json
 import os
 import random
-import simplejson
-import datetime
 import traceback
-from juno import *
-import werkzeug
-init({ 'db_type': 'sqlite', 
-       'db_location': os.path.join(os.path.abspath(os.path.dirname(__file__)), 'webapp.db'),
-       'use_debugger': True,
-       'mode': 'wsgi',
-       'static_expires': 60*60,
-       'app_path': os.path.abspath(os.path.dirname(__file__)),
-       'use_sessions': True,
-       'session_secret': 'ASDFQW$FAQWEFASD',
-     })
+from collections import namedtuple
 
-from utils import hex_random, add_new_widget
+from flask import request, session, render_template, Markup
+
+from statusboard import app, db
+from statusboard.utils import hex_random, add_new_widget
 from statusboard.plugins import load_plugins, plugin_registry
 
-Settings = model('Settings',
-    user='string',
-    grid='string' # JSON encoded data
-)
+class Settings(db.Model):
+    __tablename__ = 'settings'
+    username = db.Column(db.String(32), unique=True, primary_key=True)
+    grid = db.Column(db.Text()) # JSON encoded data
 
-GatherRequest = model('GatherRequest',
-    plugin='string',
-    user='string',
-    ts='datetime',
-    until='datetime',
-    arg='string',
-)
+class GatherRequest(db.Model):
+    __tablename__ = 'gatherrequests'
+    id = db.Column(db.Integer, primary_key=True)
+    plugin = db.Column(db.String(32))
+    username = db.Column(db.String(32))
+    ts = db.Column(db.DateTime())
+    util = db.Column(db.DateTime())
+    arg = db.Column(db.Text())
+    
+    
+
+# Settings = model('Settings',
+#     user='string',
+#     grid='string' # JSON encoded data
+# )
+# 
+# GatherRequest = model('GatherRequest',
+#     plugin='string',
+#     user='string',
+#     ts='datetime',
+#     until='datetime',
+#     arg='string',
+# )
 
 default_grid = [
     [
@@ -43,7 +52,7 @@ default_grid = [
         #{'type': 'builder', 'id': '6'},
     ],
 ]
-default_grid_json = simplejson.dumps(default_grid)
+default_grid_json = json.dumps(default_grid)
 
 def render_widget(opts, css_out=None, js_out=None):
     plugin = plugin_registry.get(opts['type'])
@@ -55,34 +64,37 @@ def render_widget(opts, css_out=None, js_out=None):
         return ret
     else:
         template_file, data = ret
-        template = plugin['templates'].get_template(template_file)
+        #template = plugin['mod'].get_template(template_file)
         #print template, render_template(template, **data)
-        return render_template(template, **data)
+        return render_template(plugin['name']+'/'+template_file, **data)
 
 def render_error(opts):
-    return render_template(get_template('widget_error.html'), id=opts['id'], error='Type "%s" unknown'%opts['type'])
+    return render_template('widget_error.html', id=opts['id'], error='Type "%s" unknown'%opts['type'])
 
-def load_settings(web):
-    if 'name' not in web.session:
-        web.session['name'] = hex_random(6)
-        web.session.save()
-    user_name = web.session['name']
-    user_settings = Settings.find().filter_by(user=user_name).first()
-    if not user_settings:
-        user_settings = Settings(user=user_name, grid=default_grid_json)
-        user_settings.save()
-    web.grid = simplejson.loads(user_settings.grid)
+def load_settings():
+    if 'name' not in session:
+        session['name'] = hex_random(6)
+    username = session['name']
+    settings = Settings.query.filter_by(username=username).first()
+    if not settings:
+        settings = Settings(username=username, grid=default_grid_json)
+        db.session.add(settings)
+        db.session.commit()
+    request.grid = json.loads(settings.grid)
     
     # For debugging
-    if web.input('reset'):
-        user_settings.grid = default_grid_json
-        user_settings.save()
-        web.grid = default_grid
-    return user_settings
+    if request.args.get('reset'):
+        settings.grid = default_grid_json
+        db.session.add(settings)
+        db.session.commit()
+        request.grid = default_grid
+    return settings
 
-@route('/')
-def index(web):
-    user_settings = load_settings(web)
+LinkData = namedtuple('LinkData', ['name', 'path'])
+
+@app.route('/')
+def index():
+    user_settings = load_settings()
     
     # Populate the widget library
     library = []
@@ -90,69 +102,72 @@ def index(web):
     js_files = set()
     for name, plugin in sorted(plugin_registry.iteritems()):
         for css in plugin['instance'].css():
-            css_files.add('%s/%s'%(plugin['name'], css))
+            css_files.add(LinkData(name=plugin['name'], path=css))
         for js in plugin['instance'].js():
-            js_files.add('%s/%s'%(plugin['name'], js))
-        output = render_widget({'type': name, 'id': 'library-'+name})
+            js_files.add(LinkData(name=plugin['name'], path=js))
+        output = Markup(render_widget({'type': name, 'id': 'library-'+name}))
         library.append({'output': output, 'name': name})
     
     # Render all the widgets we need
-    for row in web.grid:
+    for row in request.grid:
         for widget_opts in row:
-            widget_opts['output'] = render_widget(widget_opts, css, js)
-    template('index.html', {'grid': web.grid, 'library': library, 'css': css_files, 'js': js_files})
+            widget_opts['output'] = Markup(render_widget(widget_opts, css_files, js_files))
+    data = {'grid': request.grid, 'library': library, 'css': css_files, 'js': js_files}
+    return render_template('index.html', **data)
 
-@route('/ajax/layout')
-def ajax_layout(web):
-    user_settings = load_settings(web)
+@app.route('/ajax/layout', methods=['POST'])
+def ajax_layout():
+    user_settings = load_settings()
     widgets = {}
-    for row in web.grid:
+    for row in request.grid:
         for widget in row:
             widgets[widget['id']] = widget
     
     new_grid = []
-    row_count = web.input('rows')
+    row_count = request.form['rows']
     for i in xrange(int(row_count)):
         new_row = []
-        row_data = web.input('row%s'%i)
+        row_data = request.form.getlist('row%s'%i)
         if not row_data:
             continue
         for widget_id in row_data:
             if widget_id in widgets:
                 new_row.append(widgets[widget_id])
         new_grid.append(new_row)
-    user_settings.grid = simplejson.dumps(new_grid)
-    user_settings.save()
-    append(simplejson.dumps({}))
+    user_settings.grid = json.dumps(new_grid)
+    db.session.add(user_settings)
+    db.session.commit()
+    return json.dumps({})
 
-@route('/ajax/add')
-def ajax_add(web):
-    user_settings = load_settings(web)
+@app.route('/ajax/add', methods=['POST'])
+def ajax_add():
+    user_settings = load_settings()
     # Insert the new widget and set its type up
-    print 'Adding at %s,%s'%(web.input('row'), web.input('before'))
-    new_widget = add_new_widget(web.grid, int(web.input('row')), web.input('before'))
-    new_widget['type'] = web.input('type')
+    print 'Adding at %s,%s'%(request.form['row'], request.form['before'])
+    new_widget = add_new_widget(request.grid, int(request.form['row']), request.form['before'])
+    new_widget['type'] = request.form['type']
     
     # Save the grid to the DB
-    user_settings.grid = simplejson.dumps(web.grid)
-    user_settings.save()
+    user_settings.grid = json.dumps(request.grid)
+    db.session.add(user_settings)
+    db.session.commit()
     
     # Render the new widget and send to the browser
     output = render_widget(new_widget)
-    append(simplejson.dumps({'output': output}))
+    return json.dumps({'output': output})
 
-@route('/ajax/config')
-def ajax_config(web):
-    user_settings = load_settings(web)
+@app.route('/ajax/config', methods=['POST'])
+def ajax_config():
+    user_settings = load_settings()
     # Build a lookup dict for the widgets
     widgets = {}
-    for row in web.grid:
+    for row in request.grid:
         for widget in row:
             widgets[widget['id']] = widget
     
     # Set the new options
     changed = set()
-    for key, value in web.input().iteritems():
+    for key, value in request.form.iteritems():
         if key.startswith('input_'):
             _, widget_id, name = key.split('_', 2)
             if widget_id in widgets:
@@ -161,18 +176,19 @@ def ajax_config(web):
                 widgets[widget_id][name] = value
     
     # Save the grid to the DB
-    user_settings.grid = simplejson.dumps(web.grid)
-    user_settings.save()
+    user_settings.grid = json.dumps(request.grid)
+    db.session.add(user_settings)
+    db.session.commit()
     
     # Render output
     output = {}
     for widget_id in changed:
         output[widget_id] = render_widget(widgets[widget_id])
-    append(simplejson.dumps({'output': output}))
+    return json.dumps({'output': output})
 
-@route('/ajax/reload')
-def ajax_reload(web):
-    user_settings = load_settings(web)
+@app.route('/ajax/reload', methods=['POST'])
+def ajax_reload():
+    user_settings = load_settings()
     # Build a lookup dict for the widgets
     widgets = {}
     for row in web.grid:
@@ -181,49 +197,31 @@ def ajax_reload(web):
     
     # Render output
     output = {}
-    to_reload = web.input('widgets[]')
-    if not isinstance(to_reload, (list, tuple)):
-        to_reload = [to_reload]
+    to_reload = request.form.getlist('widgets[]')
+    #if not isinstance(to_reload, (list, tuple)):
+    #    to_reload = [to_reload]
     for widget_id in to_reload:
         output[widget_id] = render_widget(widgets[widget_id])
-    append(simplejson.dumps({'output': output}))
+    return json.dumps({'output': output})
 
-@route('/debug/grid')
-def debug_grid(web):
+@app.route('/debug/grid')
+def debug_grid():
     from pprint import pformat
-    user_settings = load_settings(web)
-    append('<pre>'+pformat(web.grid)+'</pre>')
+    user_settings = load_settings()
+    return '<pre>'+pformat(web.grid)+'</pre>'
 
-@route('/favicon.ico')
-def favicon(web):
-    static_serve(web, 'favicon.ico')
-
-@route('/plugin/static/w:plugin/:file')
-def plugin_static(web, plugin, file):
-    plugin = plugin_registry.get(plugin)
-    if plugin is None:
-        notfound('plugin not found')
-        return
-    file = os.path.join(plugin['static'], file)
-    realfile = os.path.realpath(file)
-    if not realfile.startswith(os.path.realpath(plugin['static'])):
-        notfound("that file could not be found/served")
-    elif yield_file(file) != 7:
-        notfound("that file could not be found/served")
-    mtime = os.stat(file).st_mtime
-    header('Last-Modified', time.strftime('%a, %d %b %Y %H:%M:%S +0000', time.gmtime(mtime)))
-    if config('static_expires'):
-        header('Expires', time.strftime('%a, %d %b %Y %H:%M:%S +0000', time.gmtime(time.time() + config('static_expires'))))
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
     
-@route('/gather')
+@app.route('/gather')
 def gather(web):
     append('<pre>')
-    sess = session()
     now = datetime.datetime.now()
-    for request in GatherRequest.find().all():
-        sess.delete(request)
-        sess.commit()
-        append('Processing %s,%s,%s\n'%(request.plugin, request.arg, request.user))
+    for gather in GatherRequest.find().all():
+        db.session.delete(request)
+        db.session.commit()
+        #append('Processing %s,%s,%s\n'%(gather.plugin, gather.arg, gather.user))
         plugin = plugin_registry.get(request.plugin)
         if plugin is None:
             continue
@@ -242,8 +240,8 @@ def gather(web):
         
     append('</pre>')
 
-load_plugins()
-application = run()
+load_plugins(app)
+
 if __name__ == '__main__':
     import kronos
     s = kronos.ThreadedScheduler()
@@ -251,7 +249,8 @@ if __name__ == '__main__':
         import urllib2
         print 'Running gather'
         urllib2.urlopen('http://localhost:8000/gather').read()
-    s.add_interval_task(run_gather, 'run_gather', 60, 60, kronos.method.sequential, None, None)
-    s.start()
-    werkzeug.run_simple('localhost', 8000, application, use_reloader=True)
-    s.stop()
+    #s.add_interval_task(run_gather, 'run_gather', 60, 60, kronos.method.sequential, None, None)
+    #s.start()
+    app.secret_key = 'a'
+    app.run(debug=True)
+    #s.stop()

@@ -109,8 +109,11 @@ $(function() {
         var serialized = '';
         var max_i = 0;
         $('.row').each(function(i) {
-          serialized += '&'+$(this).sortable('serialize', {key:'row'+i});
-          max_i = i;
+          var row = $(this).sortable('serialize', {key:'row'+i});
+          if(row) {
+            serialized += '&'+row;
+            max_i = i;
+          }
         });
         $.ajax({
           url: '/ajax/layout',

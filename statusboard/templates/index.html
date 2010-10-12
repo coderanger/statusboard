@@ -6,9 +6,9 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
     <script src="/static/statusboard.js"></script>
     <link rel="stylesheet" href="/static/statusboard.css" type="text/css" />
-    {% for path in css %}<link rel="stylesheet" href="/plugin/static/{{ path }}" type="text/css" />
+    {% for d in css %}<link rel="stylesheet" href="/plugin/{{ d.name }}/static/{{ d.path }}" type="text/css" />
     {% endfor %}
-    {% for path in js %}<script src="/plugin/static/{{ path }}"></script>
+    {% for d in js %}<script src="/plugin/{{ d.name }}/static/{{ d.path }}"></script>
     {% endfor %}
   </head>
   <body>

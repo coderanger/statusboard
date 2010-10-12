@@ -1,4 +1,6 @@
-from statusboard.plugins import Plugin
+from statusboard.plugins import Module, Plugin
+
+mod = Module(__name__)
 
 class Label(Plugin):
     def css(self):
