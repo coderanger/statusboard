@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from flask import request, session, render_template, Markup
 
-from statusboard import app, db
+from statusboard import app, db, celery
 from statusboard.utils import hex_random, add_new_widget
 from statusboard.plugins import load_plugins, plugin_registry
 
@@ -24,21 +24,6 @@ class GatherRequest(db.Model):
     ts = db.Column(db.DateTime())
     util = db.Column(db.DateTime())
     arg = db.Column(db.Text())
-    
-    
-
-# Settings = model('Settings',
-#     user='string',
-#     grid='string' # JSON encoded data
-# )
-# 
-# GatherRequest = model('GatherRequest',
-#     plugin='string',
-#     user='string',
-#     ts='datetime',
-#     until='datetime',
-#     arg='string',
-# )
 
 default_grid = [
     [
@@ -241,6 +226,26 @@ def gather(web):
     append('</pre>')
 
 load_plugins(app)
+
+@celery.task()
+def add(x, y):
+    return x + y
+
+@app.route("/add")
+def add_view(x=16, y=16):
+    x = int(request.args.get("x", x))
+    y = int(request.args.get("y", y))
+    res = add.apply_async((x, y))
+    from flask import escape
+    context = {"id": res.task_id, "x": x, "y": y, 'res': escape(repr(res))}
+    return """Hello world: \
+                add(%(x)s, %(y)s) = \
+                <a href="/result/%(id)s">%(id)s</a><br /><pre>%(res)s</pre>""" % context
+
+@app.route("/result/<task_id>")
+def show_result(task_id):
+    retval = add.AsyncResult(task_id).get(timeout=1.0)
+    return repr(retval)
 
 if __name__ == '__main__':
     import kronos

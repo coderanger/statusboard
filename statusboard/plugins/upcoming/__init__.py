@@ -3,19 +3,32 @@ import icalendar
 import datetime
 from dateutil import rrule, tz
 from StringIO import StringIO
-from juno import *
+
+from statusboard import db, celery
 from statusboard.plugins import Plugin
 
-Calendar = model('Calendar',
-    url='string',
-    ts='datetime',
-)
+class Calendar(db.Model):
+    __tablename__ = 'calendar'
+    url = db.Column(db.String(256), primary_key=True)
+    ts = db.Column(db.DateTime())
 
-CalendarEvent = model('CalendarEvent',
-    url='string',
-    date='datetime',
-    title='string',
-)
+class CalendarEvent(db.Model):
+    __tablename__ = 'calendarevent'
+    id = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.String(256))
+    date = db.Column(db.DateTime())
+    title = db.Column(db.String(256))
+
+# Calendar = model('Calendar',
+#     url='string',
+#     ts='datetime',
+# )
+# 
+# CalendarEvent = model('CalendarEvent',
+#     url='string',
+#     date='datetime',
+#     title='string',
+# )
 
 class Upcoming(Plugin):
     def css(self):
