@@ -5,7 +5,8 @@ from celery.utils.timeutils import timedelta_seconds
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, \
         Sequence, Boolean, ForeignKey, SmallInteger
-from sqlalchemy.orm import relation
+from sqlalchemy.orm import relation, sessionmaker
+from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData
 
@@ -75,6 +76,37 @@ class CrontabSchedule(ModelBase):
                                       rfield(self.day_of_week))
 
 
+class PeriodicTasks(ModelBase):
+    __tablename__ = 'statusboard_periodictasks'
+    __table_args__ = {"sqlite_autoincrement": True}
+
+    id       = Column(Integer, Sequence('periodictasks_id_sequence'), primary_key=True,
+                    autoincrement=True)
+    last_update = Column(DateTime, nullable=False)
+
+    @classmethod
+    def last_change(cls, session):
+        obj = session.query(cls).get(1)
+        if obj:
+            # Make sure it isn't cached next time
+            session.expire(obj)
+            return obj.last_update
+
+
+class _TaskUpdateExtension(MapperExtension):
+    def after_update(self, mapper, connection, instance):
+        session = sessionmaker(bind=connection)()
+        obj = session.query(PeriodicTasks).get(1)
+        if not obj:
+            obj = PeriodicTasks(id=1)
+            session.add(obj)
+        obj.last_update = datetime.now()
+        session.commit()
+    
+    after_insert = after_update
+    after_delete = after_update
+
+
 class PeriodicTask(ModelBase):
     __tablename__ = 'statusboard_periodictask'
     __table_args__ = {"sqlite_autoincrement": True}
@@ -90,12 +122,19 @@ class PeriodicTask(ModelBase):
     args = Column(Text, default='[]', nullable=False)
     kwargs = Column(Text, default='{}', nullable=False)
     queue = Column(String(200), default=None)
+    exchange = Column(String(200), default=None)
     routing_key = Column(String(200), default=None)
     expires = Column(DateTime)
     enabled = Column(Boolean, default=False, nullable=False)
     last_run_at = Column(DateTime)
     total_run_count = Column(Integer, default=0, nullable=False)
     date_changed = Column(DateTime, default=datetime.now, nullable=False)
+    
+    no_changes = False
+    
+    __mapper_args__ = {
+        'extension': _TaskUpdateExtension(),
+    }
     
     def __init__(self, **kwargs):
         for key, value in kwargs.iteritems():
@@ -115,25 +154,25 @@ class PeriodicTask(ModelBase):
             return '%s: %s' % (self.name, self.crontab)
         return '%s: {no schedule}' % (self.name, )
 
-class Message(ModelBase):
-    __tablename__ = 'kombu_message'
-    __table_args__ = {"sqlite_autoincrement": True}
-
-    id       = Column(Integer, Sequence('message_id_sequence'), primary_key=True,
-                      autoincrement=True)
-    visible  = Column(Boolean, default=True, index=True)
-    sent_at  = Column('timestamp', DateTime, nullable=True, index=True,
-                      onupdate = datetime.datetime.now)
-    payload  = Column(Text, nullable=False)
-    queue_id = Column(SmallInteger, ForeignKey('kombu_queue.id', name='FK_kombu_message_queue'))
-    version  = Column(SmallInteger, nullable=False, default=1)
-
-    __mapper_args__ = {'version_id_col': version}
-
-    def __init__(self, payload, queue):
-        self.payload  = payload
-        self.queue = queue
-
-    def __str__(self):
-        return "<Message(%s, %s, %s, %s)>" % (self.visible, self.sent_at, self.payload, self.queue_id)
+# class Message(ModelBase):
+#     __tablename__ = 'kombu_message'
+#     __table_args__ = {"sqlite_autoincrement": True}
+# 
+#     id       = Column(Integer, Sequence('message_id_sequence'), primary_key=True,
+#                       autoincrement=True)
+#     visible  = Column(Boolean, default=True, index=True)
+#     sent_at  = Column('timestamp', DateTime, nullable=True, index=True,
+#                       onupdate = datetime.datetime.now)
+#     payload  = Column(Text, nullable=False)
+#     queue_id = Column(SmallInteger, ForeignKey('kombu_queue.id', name='FK_kombu_message_queue'))
+#     version  = Column(SmallInteger, nullable=False, default=1)
+# 
+#     __mapper_args__ = {'version_id_col': version}
+# 
+#     def __init__(self, payload, queue):
+#         self.payload  = payload
+#         self.queue = queue
+    # 
+    # def __str__(self):
+    #     return "<Message(%s, %s, %s, %s)>" % (self.visible, self.sent_at, self.payload, self.queue_id)
 
