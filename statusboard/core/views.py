@@ -66,7 +66,8 @@ def load_settings(request):
             user = User.objects.create(username=request.session['name'], password='', email='')
     settings, settings_created = Settings.objects.get_or_create(user=user, authenticated=request.user.is_authenticated(), defaults={'grid': default_grid})
     request.grid = settings.grid
-    
+    request.statusboard_user = user
+
     # For debugging
     if request.GET.get('reset'):
         request.grid = settings.grid = default_grid

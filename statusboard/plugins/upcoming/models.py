@@ -11,14 +11,15 @@ from statusboard.plugins import Plugin
 
 class Calendar(models.Model):
     class Meta:
-        db_name = 'statusboard_upcoming_calendar'
+        db_table = 'statusboard_upcoming_calendar'
     url = models.CharField(_('URL'), max_length=256, unique=True)
+    name = models.CharField(_('display name'), max_length=256)
     ts = models.DateTimeField(_('timestamp'))
 
 
 class CalendarEvent(models.Model):
     class Meta:
-        db_name = 'statusboard_upcoming_calendarevent'
+        db_table = 'statusboard_upcoming_calendarevent'
     calendar = models.ForeignKey(Calendar, related_name='events', verbose_name=_('calendar'))
     date = models.DateTimeField(_('date'))
     title = models.CharField(_('title'), max_length=256)
@@ -31,15 +32,16 @@ class Upcoming(Plugin):
     def js(self):
         yield 'upcoming.js'
     
-    def render(self, opts):
+    def render(self, request, opts):
         data = {
             'id': opts['id'],
             'url': opts.get('url', ''),
             'cal': None,
             'events': [],
         }
+        print opts
         if opts.get('url'):
-            self.gather_request(opts['url'], run_for=3600*24)
+            self.gather_request([opts['url']], run_for=3600*24)
             try:
                 data['cal'] = Calendar.objects.get(url=opts['url'])
             except Calendar.DoesNotExist:
@@ -55,7 +57,7 @@ class Upcoming(Plugin):
         if not created:
             old_ts = cal.ts
             cal.ts = datetime.datetime.now()
-            Calendar.objects(pk=cal.pk).update(ts=cal.ts)
+            Calendar.objects.filter(pk=cal.pk).update(ts=cal.ts)
             if old_ts and datetime.datetime.now() - old_ts < datetime.timedelta(hours=1):
                 return
         
@@ -67,6 +69,10 @@ class Upcoming(Plugin):
         # Delete all existing events for this URL
         cal.events.all().delete()
         
+        # Update the name
+        cal.name = ical.get('X-WR-CALNAME')
+        Calendar.objects.filter(pk=cal.pk).update(name=cal.name)
+
         # Get the timezone for this calendar
         now = datetime.datetime.now(tz.tzlocal())
         for vtimezone in ical.walk('VTIMEZONE'):

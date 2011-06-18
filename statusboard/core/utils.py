@@ -1,7 +1,10 @@
+import hashlib
 import random
 import types
 
 from django.conf import settings
+
+from statusboard.core.db import dumps
 
 def hex_random(n):
     byte = lambda: '%02x'%random.randint(0, 255)
@@ -44,3 +47,8 @@ def guess_app_label(obj):
     app = guess_app(obj)
     if app is not None:
         return app.rsplit('.', 1)[-1]
+
+
+def json_hash(obj):
+    json = dumps(obj)
+    return hashlib.sha1(json).hexdigest()

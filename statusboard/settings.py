@@ -116,11 +116,26 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'djcelery',
     'statusboard',
     'statusboard.core',
     'statusboard.plugins.label',
     'statusboard.plugins.clock',
+    'statusboard.plugins.upcoming',
 )
+
+import djcelery
+djcelery.setup_loader()
+
+from datetime import timedelta
+
+BROKER_BACKEND = 'redis'
+CELERYBEAT_SCHEDULE = {
+    'gather-request': {
+        'task': 'statusboard.core.tasks.gather_requests',
+        'schedule': timedelta(minutes=1),
+    },
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

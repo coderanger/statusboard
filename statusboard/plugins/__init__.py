@@ -1,11 +1,9 @@
-import os
-import os.path
 import datetime
-import traceback
 
 from django.utils.importlib import import_module
 
-from statusboard.core.utils import guess_app
+from statusboard.core.models import GatherRequest
+from statusboard.core.utils import guess_app, json_hash
 
 plugin_registry = {}
 
@@ -33,14 +31,12 @@ class Plugin(object):
     def js(self):
         return ()
     
-    def gather_request(self, arg, user=None, run_for=300):
-        from main import GatherRequest
-        request = GatherRequest.find().filter_by(plugin=self._plugin_name, user=user, arg=arg).first()
-        if not request:
-            request = GatherRequest(plugin=self._plugin_name, user=user, ts=datetime.datetime.now(), until=datetime.datetime.now()+datetime.timedelta(seconds=run_for), arg=arg)
-        else:
+    def gather_request(self, args=None, user=None, run_for=300):
+        args_hash = json_hash(args)
+        request, created = GatherRequest.objects.get_or_create(plugin=self._plugin_name, user=user, args_hash=args_hash, defaults={'ts': datetime.datetime.now(), 'until': datetime.datetime.now()+datetime.timedelta(seconds=run_for), 'args': args})
+        if not created:
             request.until = datetime.datetime.now()+datetime.timedelta(seconds=run_for)
-        request.save()
+            GatherRequest.objects.filter(pk=request.pk).update(until=request.until)
 
 
 def urls_for_app(app):

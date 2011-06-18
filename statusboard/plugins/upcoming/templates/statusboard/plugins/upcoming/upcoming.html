@@ -1,3 +1,4 @@
+{% load i18n %}
 <div id="widget_{{ id }}" class="widget box upcoming">
   <div class="front">
     <div class="today">Sunday, 4/25</div>
@@ -15,6 +16,10 @@
     <div>
       <label for="input_{{ id }}_url">URL</label>
       <input id="input_{{ id }}_url" value="{{ url }}" />
+    </div>
+    <div>
+      <label for="input_{{ id }}_showname">Show Display Name</label>
+      <input id="input_{{ id }}_showname" checked="{{ showname|yesno:"checked," }}" />
     </div>
   </div>
 </div>
