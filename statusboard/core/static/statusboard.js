@@ -7,12 +7,6 @@ $(function() {
     if(evt.target.tagName != 'INPUT')
       evt.preventDefault();
   });
-  $('#menu').hover(function() {
-    $('#menu-inner').show();
-  }, function() {
-    $('#menu-inner').hide();
-  });
-  $('#menu-inner').hide();
   $('#menu-edit').click(function() {
     $('#library, .row .front, .row .back').toggle();
     if(optionsMode && changed.length > 0)

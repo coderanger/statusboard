@@ -20,6 +20,14 @@ hr.divider {
   z-index: 100;
 }
 
+#menu #menu-inner {
+  display: none;
+}
+
+#menu:hover #menu-inner {
+  display: block;
+}
+
 #menu img {
   border: 0;
 }
