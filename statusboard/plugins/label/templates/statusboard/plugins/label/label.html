@@ -1,5 +1,6 @@
+{% load i18n %}
 <div id="widget_{{ id }}" class="widget box label">
-  <div class="front">
+  <div class="front"{% if color %} style="background-color:{{ color }};"{% endif %}>
     {% if link %}
       <a href="{{ link }}">{{ label }}</a>
     {% else %}
@@ -7,14 +8,18 @@
     {% endif %}
   </div>
   <div class="back">
-    <div class="title">Label</div>
+    <div class="title">{% trans 'Label' %}</div>
     <div>
-      <label for="input_{{ id }}_label">Label</label>
+      <label for="input_{{ id }}_label">{% trans 'Label' %}</label>
       <input id="input_{{ id }}_label" value="{{ label }}" />
     </div>
     <div>
-      <label for="input_{{ id }}_link">Link</label>
+      <label for="input_{{ id }}_link">{% trans 'Link' %}</label>
       <input id="input_{{ id }}_link" value="{{ link }}" />
+    </div>
+    <div>
+      <label for="input_{{ id }}_color">{% trans 'Color' %}</label>
+      <input id="input_{{ id }}_color" value="{{ color }}" />
     </div>
   </div>
 </div>

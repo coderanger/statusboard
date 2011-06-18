@@ -9,5 +9,6 @@ class Label(Plugin):
             'id': opts['id'],
             'label': opts.get('label', 'Label'),
             'link': opts.get('link', ''),
+            'color': opts.get('color', ''),
         }
         return 'label.html', data
