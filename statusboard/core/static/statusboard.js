@@ -35,6 +35,7 @@ $(function() {
       });
       changed = [];
     }
+    $('body').toggleClass('optionsMode');
     optionsMode = !optionsMode;
   });
   

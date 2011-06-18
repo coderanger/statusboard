@@ -28,6 +28,14 @@ hr.divider {
   display: block;
 }
 
+body.optionsMode #menu {
+  position: fixed;
+}
+
+body.optionsMode #menu #menu-inner {
+  display: block;
+}
+
 #menu img {
   border: 0;
 }
