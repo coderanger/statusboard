@@ -7,7 +7,7 @@ $(function() {
     var m = today.getMinutes();
     if(m < 10) { m = '0' + m; }
     $('.clock .time').html(h + ':' + m);
-    setTimeout(update, 1000);
+    setTimeout(update, 5000);
   }
   update();
 });

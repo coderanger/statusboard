@@ -4,11 +4,12 @@
     <title>Status Board</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+    <script src="/static/django_ajax.js"></script>
     <script src="/static/statusboard.js"></script>
     <link rel="stylesheet" href="/static/statusboard.css" type="text/css" />
-    {% for d in css %}<link rel="stylesheet" href="/plugin/{{ d.name }}/static/{{ d.path }}" type="text/css" />
+    {% for d in css %}<link rel="stylesheet" href="{{ STATIC_URL }}{{ d.path }}" type="text/css" />
     {% endfor %}
-    {% for d in js %}<script src="/plugin/{{ d.name }}/static/{{ d.path }}"></script>
+    {% for d in js %}<script src="{{ STATIC_URL }}{{ d.path }}"></script>
     {% endfor %}
   </head>
   <body>
@@ -20,13 +21,13 @@
       {% for widget in library %}
       <div class="library-inner">
         {{ widget.output }}
-        <div class="library-title">{{ widget.name.title() }}</div>
+        <div class="library-title">{{ widget.name.title }}</div>
       </div>
       {% endfor %}
       <hr class="divider" />
     </div>
     {% for row in grid %}
-    <div id="row{{ loop.index0 }}" class="row">
+    <div id="row{{ forloop.counter0 }}" class="row">
       {% for widget in row %}
       {{ widget.output }}
       {% endfor %}

@@ -1,16 +1,14 @@
-from flaskext.script import Manager, Server, Shell
-from flaskext.celery import install_commands as install_celery_commands
-from statusboard.main import app, db
+#!/usr/bin/env python
+from django.core.management import execute_manager
+from django.utils.importlib import import_module
+try:
+    import_module('statusboard.settings') # Assumed to be in the same directory.
+except ImportError:
+    import sys
+    sys.stderr.write("Error: Can't find the file 'settings.py' in the directory containing %r. It appears you've customized things.\nYou'll have to run django-admin.py, passing it your settings module.\n" % __file__)
+    sys.exit(1)
 
-manager = Manager(app)
-manager.add_command('runserver', Server())
-manager.add_command('shell', Shell(make_context=lambda: dict(app=app, db=db)))
-install_celery_commands(manager)
+from statusboard import settings
 
-@manager.command
-def syncdb():
-    db.create_all()
-    db.session.commit()
-
-if __name__ == '__main__':
-    manager.run()
+if __name__ == "__main__":
+    execute_manager(settings)

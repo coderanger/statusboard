@@ -3,6 +3,10 @@ $(function() {
   var changed = [];
   var optionsMode = false;
   
+  $('body').mousedown(function(evt) {
+    if(evt.target.tagName != 'INPUT')
+      evt.preventDefault();
+  });
   $('#menu').mouseenter(function() {
     $('#menu-inner').show();
   }).mouseleave(function() {

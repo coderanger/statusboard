@@ -3,9 +3,9 @@ import os.path
 import datetime
 import traceback
 
-from flask import Module
+from django.utils.importlib import import_module
 
-from statusboard.utils import import_module
+from statusboard.core.utils import guess_app
 
 plugin_registry = {}
 
@@ -25,6 +25,7 @@ class PluginMeta(type):
 class Plugin(object):
     __metaclass__ = PluginMeta
     disable = False
+    namespace = None
     
     def css(self):
         return ()
@@ -42,34 +43,27 @@ class Plugin(object):
         request.save()
 
 
-def load_plugins(app):
-    plugin_base = os.path.dirname(__file__)
-    for name in os.listdir(plugin_base):
-        path = os.path.join(plugin_base, name)
-        if name.startswith('_'):
-            continue
-        if not os.path.isdir(path):
-            continue
-        if not os.path.isfile(os.path.join(path, '__init__.py')):
-            continue
-        print 'Loading plugin from %s'%('statusboard.plugins.'+name)
-        try:
-            mod = import_module('statusboard.plugins.'+name)
-        except Exception:
-            traceback.print_exc()
-            continue
-        for plugin in PluginMeta.plugins:
-            if plugin.disable:
-                continue
-            plugin_name = plugin._plugin_name
-            print 'Found plugin %s'%plugin_name
-            plugin_registry[plugin_name] = {
-                'name': plugin_name,
-                'instance': plugin(),
-                #'static': os.path.join(path, 'static'),
-                #'templates': jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.join(path, 'templates')), auto_reload=True),
-                'mod': mod.mod,
-            }
-            app.register_module(mod.mod, url_prefix='/plugin/'+plugin_name)
-        PluginMeta.plugins = []
+def urls_for_app(app):
+    try:
+        return import_module(app + '.urls')
+    except ImportError:
+        return None
 
+
+def load_plugins():
+    for plugin in PluginMeta.plugins:
+        if plugin.disable:
+            continue
+        plugin_name = plugin._plugin_name
+        print 'Found plugin %s'%plugin_name
+        app = guess_app(plugin)
+        plugin_registry[plugin_name] = {
+            'name': plugin_name,
+            'instance': plugin(),
+            #'static': os.path.join(path, 'static'),
+            #'templates': jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.join(path, 'templates')), auto_reload=True),
+            'app': app,
+            'urls': urls_for_app(app),
+            'namespace': plugin.namespace or app.replace('.', '/'),
+        }
+    return plugin_registry
