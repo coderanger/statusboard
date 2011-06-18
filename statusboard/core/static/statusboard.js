@@ -8,6 +8,7 @@ $(function() {
       evt.preventDefault();
   });
   $('#menu-edit').click(function() {
+    $('.box .back :input:focus').change().blur();
     $('#library, .row .front, .row .back').toggle();
     if(optionsMode && changed.length > 0)
     {
