@@ -7,9 +7,9 @@ $(function() {
     if(evt.target.tagName != 'INPUT')
       evt.preventDefault();
   });
-  $('#menu').mouseenter(function() {
+  $('#menu').hover(function() {
     $('#menu-inner').show();
-  }).mouseleave(function() {
+  }, function() {
     $('#menu-inner').hide();
   });
   $('#menu-inner').hide();

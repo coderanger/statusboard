@@ -17,6 +17,7 @@ hr.divider {
   right: 0px;
   width: 110px;
   height: 52px;
+  z-index: 100;
 }
 
 #menu img {
