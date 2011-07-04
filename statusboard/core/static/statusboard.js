@@ -145,7 +145,7 @@ $(function() {
   // Setup auto-reload for needed widgets
   var reload_interval = 30;
   $('.row div[data-reload]').each(function() {
-    var time = parseInt($(this).attr('data-reload'), 10)
+    var time = parseInt($(this).data('reload'), 10)
     $(this).data('reload', time).data('reload-orig', time);
   });
   function run_reload() {
