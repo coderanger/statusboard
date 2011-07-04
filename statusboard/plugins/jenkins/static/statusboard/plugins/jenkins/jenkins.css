@@ -1,0 +1,53 @@
+.jenkins .front > div {
+  position: absolute;
+  width: 190px;
+  left: 0;
+  text-align: center;
+}
+
+.jenkins  .name {
+  top: 5px;
+  font-size: 1.5em;
+}
+
+.jenkins .line1 {
+  top: 45px;
+  left: 0;
+}
+
+.jenkins .front .progress {
+  width: 150px !important;
+  height: 25px;
+  position: absolute;
+  top: 78px;
+  left: 15px;
+  background-color: #777;
+  border: 1px #000 solid;
+}
+
+.jenkins .progress .progress-inner {
+  float: left;
+  height: 25px;
+  width: 0;
+  color: #000;
+  background-color: #0F9999;
+  text-align: right;
+  line-height: 25px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.jenkins .line2 {
+  top: 125px;
+  left: 0;
+}
+
+.jenkins .status {
+  bottom: 5px;
+  left: 0;
+  font-size: 1.3em;
+}
+
+#cluetip #cluetip-outer {
+  background-color: #333;
+}
