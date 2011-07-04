@@ -38,6 +38,8 @@ class Plugin(object):
             request.until = datetime.datetime.now()+datetime.timedelta(seconds=run_for)
             GatherRequest.objects.filter(pk=request.pk).update(until=request.until)
 
+    #def tick(self):
+        #pass
 
 def urls_for_app(app):
     try:

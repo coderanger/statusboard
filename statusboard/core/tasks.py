@@ -40,3 +40,18 @@ def gather_requests():
         # Reshedule?
         if now >= gather.until:
             gather.delete()
+
+
+@task
+def plugin_tick(frequency, plugin_name):
+    plugin = plugin_registry.get(plugin_name)
+    getattr(plugin['instance'], 'tick_%s'%frequency)()
+
+
+@task
+def plugin_ticks(frequency):
+    log = plugin_ticks.get_logger()
+    for name, plugin in plugin_registry.iteritems():
+        if hasattr(plugin['instance'], 'tick_%s'%frequency):
+            log.debug('Queueing tick_%s task for plugin %s', frequency, name)
+            plugin_tick.apply_async(args=[frequency, name])

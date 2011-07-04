@@ -128,12 +128,33 @@ import djcelery
 djcelery.setup_loader()
 
 from datetime import timedelta
+from statusboard.core.schedules import tick_schedule
 
 BROKER_BACKEND = 'redis'
 CELERYBEAT_SCHEDULE = {
     'gather-request': {
         'task': 'statusboard.core.tasks.gather_requests',
         'schedule': timedelta(minutes=1),
+    },
+    'plugin-tick-5': {
+        'task': 'statusboard.core.tasks.plugin_ticks',
+        'schedule': tick_schedule(minutes=5),
+        'args': (5,),
+    },
+    'plugin-tick-10': {
+        'task': 'statusboard.core.tasks.plugin_ticks',
+        'schedule': tick_schedule(minutes=10),
+        'args': (10,),
+    },
+    'plugin-tick-30': {
+        'task': 'statusboard.core.tasks.plugin_ticks',
+        'schedule': tick_schedule(minutes=30),
+        'args': (30,),
+    },
+    'plugin-tick-60': {
+        'task': 'statusboard.core.tasks.plugin_ticks',
+        'schedule': tick_schedule(minutes=60),
+        'args': (60,),
     },
 }
 
