@@ -4,7 +4,7 @@ $(function() {
   var optionsMode = false;
   
   $('body').mousedown(function(evt) {
-    if(evt.target.tagName != 'INPUT')
+    if(evt.target.tagName != 'INPUT' && evt.target.tagName != 'SELECT')
       evt.preventDefault();
   });
   $('#menu-edit').click(function() {
