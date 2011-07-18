@@ -2,6 +2,7 @@ import datetime
 
 from celery.task import task
 from django.contrib.auth.models import User
+from django.db import transaction
 
 from statusboard.core.models import GatherRequest
 from statusboard.plugins import load_plugins, plugin_registry
@@ -36,7 +37,7 @@ def gather_requests():
             args = ()
             kwargs = gather.args
         gather_request.apply_async(args=[gather.plugin, gather.user_id, args, kwargs])
-        
+
         # Reshedule?
         if now >= gather.until:
             gather.delete()
@@ -45,7 +46,8 @@ def gather_requests():
 @task
 def plugin_tick(frequency, plugin_name):
     plugin = plugin_registry.get(plugin_name)
-    getattr(plugin['instance'], 'tick_%s'%frequency)()
+    with transaction.commit_on_success():
+        getattr(plugin['instance'], 'tick_%s'%frequency)(plugin_tick.get_logger())
 
 
 @task
