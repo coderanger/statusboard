@@ -1,0 +1,6 @@
+before 'source .venv/bin/activate'
+run 'gitx'
+run 'open http://localhost:8000/'
+run 'python manage.py shell'
+tab 'python manage.py runserver'
+tab 'python manage.py celeryd -BE -l debug'
