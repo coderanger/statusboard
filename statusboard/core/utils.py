@@ -4,7 +4,7 @@ import types
 
 from django.conf import settings
 
-from statusboard.core.db import dumps
+from statusboard.utils import json
 
 def hex_random(n):
     byte = lambda: '%02x'%random.randint(0, 255)
@@ -50,5 +50,4 @@ def guess_app_label(obj):
 
 
 def json_hash(obj):
-    json = dumps(obj)
-    return hashlib.sha1(json).hexdigest()
+    return hashlib.sha1(json.dumps(obj)).hexdigest()

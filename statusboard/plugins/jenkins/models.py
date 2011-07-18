@@ -6,10 +6,10 @@ from xml.dom import minidom
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from statusboard.core.compat import json
 from statusboard.plugins import Plugin
 from statusboard.plugins.jenkins import conf
 from statusboard.plugins.jenkins.utils import get_servers
+from statusboard.utils import json
 
 class AutoServerManager(models.Manager):
     def create_from_recvfrom(self, data_address):
