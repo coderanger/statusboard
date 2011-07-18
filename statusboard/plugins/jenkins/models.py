@@ -1,10 +1,12 @@
 import select
 import socket
+import urllib2
 from xml.dom import minidom
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from statusboard.core.compat import json
 from statusboard.plugins import Plugin
 from statusboard.plugins.jenkins import conf
 from statusboard.plugins.jenkins.utils import get_servers
@@ -33,11 +35,34 @@ class AutoServer(models.Model):
 
     objects = AutoServerManager()
 
+    def __unicode__(self):
+        return self.server_url()
+
+    def __repr__(self):
+        return '<AutoServer %s>'%self.server_url()
+
     def server_url(self):
         if self.url:
             return self.url
         # Assume standard setup on port 8080 for lack of something better
-        return 'http://%s:8080/'%self.ip
+        return u'http://%s:8080/'%self.ip
+
+
+class Job(models.Model):
+    class Meta:
+        db_table = 'statusboard_jenkins_jobs'
+        unique_together = [('server_url', 'name')]
+    server_url = models.CharField(_('server URL'), max_length=256)
+    name = models.CharField(_('name'), max_length=256)
+    url = models.CharField(_('URL'), max_length=256)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'server_url': self.server_url,
+            'name': self.name,
+            'url': self.url,
+        }
 
 
 class Jenkins(Plugin):
@@ -53,18 +78,49 @@ class Jenkins(Plugin):
     def render(self, request, opts):
         data = {
             'id': opts['id'],
-            'url': opts.get('url', ''),
-            'jenkins_servers': get_servers(),
+            'server_url': opts.get('server_url', ''),
+            'job': opts.get('job', ''),
+            'servers': get_servers(),
+            'jobs': [],
         }
+        if data['server_url']:
+            data['jobs'] = Job.objects.filter(server_url=data['server_url'])
+        if data['job']:
+            try:
+                data['job'] = Job.objects.get(id=data['job'])
+            except Job.DoesNotExist:
+                data['job'] = ''
         return 'jenkins.html', data
 
-    def gather(self, url):
+    def gather(self, job_id):
         pass
 
-    def tick_60(self):
+    def tick_5(self, log):
+        """Every 5 minutes, grab the job names from all configured servers."""
+        for server_url in get_servers():
+            api_url = server_url+'api/json/?tree=jobs[name,url]'
+            try:
+                data = json.load(urllib2.urlopen(api_url))
+            except urllib2.urlopen:
+                # Server unreachable, remove all jobs
+                Job.objects.filter(server_url=server_url).delete()
+                return
+            jobs_seen = set()
+            for job in data['jobs']:
+                Job.objects.get_or_create(server_url=server_url, name=job['name'], defaults={'url': job['url']})
+                jobs_seen.add(job['name'])
+            # Remove all jobs that we didn't see this time
+            Job.objects.filter(server_url=server_url).exclude(name__in=jobs_seen).delete()
+
+    def tick_60(self, log):
+        """If AUTOSERVERS is enabled, scan the network every hour for available
+        Jenkins servers.
+        """
         if not conf.AUTOSERVERS:
+            log.debug('AUTOSERVERS disabled, not performing network scan')
             return # Manual servers config, don't scan the network
         AutoServer.objects.all().delete()
+        log.debug('Broadcasting for Jenkins servers')
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         sock.sendto('', ('<broadcast>', 33848))
@@ -72,6 +128,7 @@ class Jenkins(Plugin):
             rready, wready, xready = select.select([sock], [], [], 1)
             if rready:
                 data = sock.recvfrom(4096)
+                log.debug('Got response from Jenkins server %r', data)
                 AutoServer.objects.create_from_recvfrom(data)
             else:
                 break

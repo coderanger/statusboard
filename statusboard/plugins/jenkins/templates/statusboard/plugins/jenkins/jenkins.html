@@ -1,6 +1,7 @@
+{% load url from future %}
 <div id="widget_{{ id }}" class="widget box jenkins" data-reload="60">
-  <div class="front  {{ css_class }}">
-    <div class="name">{{ label }}</div>
+  <div class="front {{ css_class }}">
+    <div class="name">{{ job.name|escape }}</div>
     <div class="line1">{{ line1 }}</div>
     <div class="progress" {% if url %}data-timing-url="/plugin/jenkins/timing?name={{ url }}"{% endif %}>
       <div class="progress-inner" style="width: {{ progress }}%;">{% if progress >= 100 %}+&nbsp;{% endif %}</div>
@@ -10,12 +11,24 @@
   </div>
   <div class="back">
     <div class="title">Jenkins</div>
-    <select id="input_{{ id }}_url" name="a">
-      {% if not url %}
-      <option value="" selected="selected"></option>
+    <select id="input_{{ id }}_server_url">
+      {% if not server_url %}
+      <option value="" selected="selected">Select a server</option>
       {% endif %}
-      {% for available_url in jenkins_servers %}
-      <option value="{{ available_url }}" {% if url == available_url %}selected="selected"{% endif %}>{{ available_url }}</option>
+      {% for url in servers %}
+      <option value="{{ url|escape }}" {% if server_url == url %}selected="selected"{% endif %}>{{ url|escape }}</option>
+      {% endfor %}
+    </select>
+    <select id="input_{{ id }}_job" data-jobs-url="{% url 'statusboard-jenkins-jobs' %}">
+      {% if not job %}
+      {% if not server_url %}
+      <option value="" selected="selected"></option>
+      {% else %}
+      <option value="" selected="selected">Select a job</option>
+      {% endif %}
+      {% endif %}
+      {% for j in jobs %}
+      <option value="{{ j.id }}" {% if j.id == job.id %}selected="selected"{% endif %}>{{ j.name }}</option>
       {% endfor %}
     </select>
   </div>
