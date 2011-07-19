@@ -1,5 +1,5 @@
 $(function() {
-  $('.jenkins').live('statusboard-reload', function() {
+  $(document).delegate('.jenkins', 'statusboard-reload', function() {
     $(this).find('.progress').cluetip({
       cluetipClass: 'jtip', 
       attribute: 'data-timing-url',
@@ -7,7 +7,7 @@ $(function() {
       showTitle: false,
       ajaxCache: false,
     });
-  }).trigger('statusboard-reload').delegate('select[id$=_server_url]', 'change', function() {
+  }).delegate('.jenkins select[id$=_server_url]', 'change', function() {
     var server_url_elm = $(this);
     var job_elm = server_url_elm.siblings('select[id$=_job]');
     console.log(server_url_elm.val());
