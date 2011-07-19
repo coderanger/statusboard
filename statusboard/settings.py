@@ -137,6 +137,11 @@ CELERYBEAT_SCHEDULE = {
         'task': 'statusboard.core.tasks.gather_requests',
         'schedule': timedelta(minutes=1),
     },
+    'plugin-tick-1': {
+        'task': 'statusboard.core.tasks.plugin_ticks',
+        'schedule': tick_schedule(minutes=1),
+        'args': (1,),
+    },
     'plugin-tick-5': {
         'task': 'statusboard.core.tasks.plugin_ticks',
         'schedule': tick_schedule(minutes=5),
