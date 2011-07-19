@@ -183,4 +183,6 @@ $(function() {
     }
   }
   setTimeout(run_reload, reload_interval*1000);
+  // Trigger the reload event on all widgets for initial setup
+  $('.widget').trigger('statusboard-reload', [true]);
 });
