@@ -14,7 +14,8 @@ def gather_request(plugin_name, user, args, kwargs):
     plugin = plugin_registry.get(plugin_name)
     if user:
         kwargs['user'] = User.objects.get(id=user)
-    plugin['instance'].gather(*args, **kwargs)
+    with transaction.commit_on_success():
+        plugin['instance'].gather(*args, **kwargs)
 
 
 @task
