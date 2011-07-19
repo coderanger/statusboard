@@ -55,6 +55,7 @@ class Job(models.Model):
     server_url = models.CharField(_('server URL'), max_length=256)
     name = models.CharField(_('name'), max_length=256)
     url = models.CharField(_('URL'), max_length=256)
+    status = models.NullBooleanField(_('status'), default=None)
 
     def to_dict(self):
         return {
@@ -82,12 +83,14 @@ class Jenkins(Plugin):
             'job': opts.get('job', ''),
             'servers': get_servers(),
             'jobs': [],
+            'css_class': '',
         }
         if data['server_url']:
             data['jobs'] = Job.objects.filter(server_url=data['server_url'])
         if data['job']:
             try:
                 data['job'] = Job.objects.get(id=data['job'])
+                data['css_class'] = {True: 'green', False: 'red'}.get(data['job'].status, 'purple')
             except Job.DoesNotExist:
                 data['job'] = ''
         return 'jenkins.html', data
@@ -95,22 +98,32 @@ class Jenkins(Plugin):
     def gather(self, job_id):
         pass
 
-    def tick_5(self, log):
-        """Every 5 minutes, grab the job names from all configured servers."""
+    def tick_1(self, log):
+        """Every minute, grab the jobs from all configured servers."""
         for server_url in get_servers():
-            api_url = server_url+'api/json/?tree=jobs[name,url]'
+            api_url = server_url+'api/json/?tree=jobs[name,url,healthReport[description,score],lastBuild[building,timestamp],lastCompletedBuild[result],lastSuccessfulBuild[duration]]'
             try:
                 data = json.load(urllib2.urlopen(api_url))
-            except urllib2.urlopen:
+            except urllib2.URLError:
                 # Server unreachable, remove all jobs
                 Job.objects.filter(server_url=server_url).delete()
                 return
             jobs_seen = set()
-            for job in data['jobs']:
-                Job.objects.get_or_create(server_url=server_url, name=job['name'], defaults={'url': job['url']})
-                jobs_seen.add(job['name'])
+            for job_data in data['jobs']:
+                fields = {'url': job_data['url']}
+                if 'lastCompletedBuild' in job_data:
+                    result = job_data['lastCompletedBuild'].get('result')
+                    if result is None:
+                        fields['status'] = None
+                    else:
+                        fields['status'] = result == 'SUCCESS'
+                job, created = Job.objects.get_or_create(server_url=server_url, name=job_data['name'], defaults=fields)
+                if not created:
+                    # Update to latest data
+                    Job.objects.filter(id=job.id).update(**fields)
+                jobs_seen.add(job.id)
             # Remove all jobs that we didn't see this time
-            Job.objects.filter(server_url=server_url).exclude(name__in=jobs_seen).delete()
+            Job.objects.filter(server_url=server_url).exclude(id__in=jobs_seen).delete()
 
     def tick_60(self, log):
         """If AUTOSERVERS is enabled, scan the network every hour for available
