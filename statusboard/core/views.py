@@ -12,6 +12,7 @@ from django.utils.translation import ugettext as _
 from statusboard.core.models import Settings, GatherRequest
 from statusboard.core.utils import hex_random, add_new_widget
 from statusboard.plugins import load_plugins, plugin_registry
+from statusboard.utils.json import JSONResponse
 
 default_grid = [
     [
@@ -25,11 +26,6 @@ default_grid = [
         #{'type': 'builder', 'id': '6'},
     ],
 ]
-
-class JSONResponse(HttpResponse):
-    def __init__(self, obj, **kwargs):
-        super(self, JSONResponse).__init__(json.dumps(obj), mimetype='application/json', **kwargs)
-
 
 def render_widget(request, opts, css_out=None, js_out=None):
     plugin = plugin_registry.get(opts['type'])
