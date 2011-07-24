@@ -70,7 +70,7 @@ class Upcoming(Plugin):
         cal.events.all().delete()
         
         # Update the name
-        cal.name = ical.get('X-WR-CALNAME')
+        cal.name = ical.get('X-WR-CALNAME') or ''
         Calendar.objects.filter(pk=cal.pk).update(name=cal.name)
 
         # Get the timezone for this calendar
