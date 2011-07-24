@@ -4,7 +4,7 @@
     <div class="name">{{ job.name|escape }}</div>
     <div class="line1">{{ line1 }}</div>
     <div class="progress" {% if url %}data-timing-url="/plugin/jenkins/timing?name={{ url }}"{% endif %}>
-      <div class="progress-inner" style="width: {{ progress }}%;">{% if progress >= 100 %}+&nbsp;{% endif %}</div>
+      <div class="progress-inner" style="width: {{ progress }}%;">{% if progress > 100 %}+&nbsp;{% endif %}</div>
     </div>
     <div class="line2">{{ line2 }}</div>
     <div class="status">{{ status }}</div>
