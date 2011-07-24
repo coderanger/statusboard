@@ -1,3 +1,4 @@
+import datetime
 import select
 import socket
 import urllib2
@@ -5,6 +6,7 @@ from xml.dom import minidom
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+import pytz
 
 from statusboard.plugins import Plugin
 from statusboard.plugins.jenkins import conf
@@ -56,6 +58,7 @@ class Job(models.Model):
     name = models.CharField(_('name'), max_length=256)
     url = models.CharField(_('URL'), max_length=256)
     status = models.NullBooleanField(_('status'), default=None)
+    progress = models.IntegerField(_('progress'), default=0)
 
     def to_dict(self):
         return {
@@ -84,6 +87,7 @@ class Jenkins(Plugin):
             'servers': get_servers(),
             'jobs': [],
             'css_class': '',
+            'progress': 0,
         }
         if data['server_url']:
             data['jobs'] = Job.objects.filter(server_url=data['server_url'])
@@ -91,6 +95,7 @@ class Jenkins(Plugin):
             try:
                 data['job'] = Job.objects.get(id=data['job'])
                 data['css_class'] = {True: 'green', False: 'red'}.get(data['job'].status, 'purple')
+                data['progress'] = data['job'].progress
             except Job.DoesNotExist:
                 data['job'] = ''
         return 'jenkins.html', data
@@ -117,6 +122,22 @@ class Jenkins(Plugin):
                         fields['status'] = None
                     else:
                         fields['status'] = result == 'SUCCESS'
+                if 'lastBuild' in job_data:
+                    if job_data['lastBuild']['building']:
+                        # Currently building, compute progress
+                        last_build_duration = job_data.get('lastSuccessfulBuild', {}).get('duration')
+                        if not last_build_duration:
+                            fields['progress'] = 0
+                        else:
+                            start_time = datetime.datetime.fromtimestamp(job_data['lastBuild']['timestamp'] / 1000)
+                            start_time = pytz.utc.normalize(pytz.timezone(conf.TIME_ZONE).localize(start_time).astimezone(pytz.utc)).replace(tzinfo=None)
+                            current_build_delta = datetime.datetime.utcnow() - start_time
+                            current_build_duration = (current_build_delta.days * 86400) + current_build_delta.seconds
+                            last_build_duration = last_build_duration / 1000 # Milliseconds
+                            fields['progress'] = current_build_duration * 100 / last_build_duration
+                            log.debug('!!!!!!!!!!! %s,%s,%s,%s,%s', start_time, current_build_delta, current_build_duration, last_build_duration, fields['progress'])
+                    else:
+                        fields['progress'] = 100
                 job, created = Job.objects.get_or_create(server_url=server_url, name=job_data['name'], defaults=fields)
                 if not created:
                     # Update to latest data
