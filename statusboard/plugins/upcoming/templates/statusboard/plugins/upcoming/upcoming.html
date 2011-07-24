@@ -1,7 +1,7 @@
 {% load i18n %}
 <div id="widget_{{ id }}" class="widget box upcoming">
   <div class="front">
-    <div class="today">Sunday, 4/25</div>
+    <div class="today">{{ now|date:"l, n/d" }}</div>
     <div class="events">
       {% for event in events %}
       <div class="event">

@@ -38,8 +38,8 @@ class Upcoming(Plugin):
             'url': opts.get('url', ''),
             'cal': None,
             'events': [],
+            'now': datetime.datetime.now(),
         }
-        print opts
         if opts.get('url'):
             self.gather_request([opts['url']], run_for=3600*24)
             try:
