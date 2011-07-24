@@ -32,7 +32,9 @@ setup(
         'Programming Language :: Python',
     ],
     install_requires = [
-        'Flask',
-        'Flask-SQLAlchemy',
+        'Django',
+        'Django-Celery',
+        'icalendar',
+        'pytz',
     ]
 )
