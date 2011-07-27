@@ -35,6 +35,5 @@ setup(
         'Django',
         'Django-Celery',
         'icalendar',
-        'pytz',
     ]
 )

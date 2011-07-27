@@ -6,7 +6,6 @@ from xml.dom import minidom
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-import pytz
 
 from statusboard.plugins import Plugin
 from statusboard.plugins.jenkins import conf
@@ -129,8 +128,7 @@ class Jenkins(Plugin):
                         if not last_build_duration:
                             fields['progress'] = 0
                         else:
-                            start_time = datetime.datetime.fromtimestamp(job_data['lastBuild']['timestamp'] / 1000)
-                            start_time = pytz.utc.normalize(pytz.timezone(conf.TIME_ZONE).localize(start_time).astimezone(pytz.utc)).replace(tzinfo=None)
+                            start_time = datetime.datetime.utcfromtimestamp(job_data['lastBuild']['timestamp'] // 1000)
                             current_build_delta = datetime.datetime.utcnow() - start_time
                             current_build_duration = (current_build_delta.days * 86400) + current_build_delta.seconds
                             last_build_duration = last_build_duration / 1000 # Milliseconds
