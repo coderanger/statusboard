@@ -1,0 +1,17 @@
+{% load i18n %}
+<div id="widget_{{ id }}" class="widget box ticker">
+  <div class="front">
+    {% if library %}
+    {% trans 'A scrolling news ticker' %}
+    {% else %}
+    Lorem ipsum
+    {% endif %}
+  </div>
+  <div class="back">
+    <div class="title">{% trans "Ticker" %}</div>
+    <div>
+      <label for="input_{{ id }}_url">{% trans "Feed" %}</label>
+      <input id="input_{{ id }}_url" value="{{ url }}" />
+    </div>
+  </div>
+</div>

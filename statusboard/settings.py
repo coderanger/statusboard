@@ -123,6 +123,7 @@ INSTALLED_APPS = (
     'statusboard.plugins.clock',
     'statusboard.plugins.upcoming',
     'statusboard.plugins.jenkins',
+    'statusboard.plugins.ticker',
 )
 
 import djcelery

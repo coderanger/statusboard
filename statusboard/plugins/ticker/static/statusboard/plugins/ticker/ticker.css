@@ -1,0 +1,15 @@
+.ticker {
+    min-height: 50px;
+    height: auto;
+    width: 400px;
+}
+
+.ticker .back {
+    height: 70px;
+}
+
+#library .ticker {
+    width: 190px;
+    height: 190px;
+    line-height: 190px;
+}
