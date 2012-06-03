@@ -58,6 +58,10 @@ body.optionsMode #menu #menu-inner {
   float: none;
 }
 
+#library .placeholder {
+  display: none;
+}
+
 #library .library-title {
   text-align: center;
 }

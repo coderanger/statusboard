@@ -1,15 +1,22 @@
 .ticker {
-    min-height: 50px;
-    height: auto;
-    width: 400px;
+  min-height: 50px;
+  height: auto;
+  width: 590px;
+}
+
+.ticker .front {
+  line-height: 50px;
 }
 
 .ticker .back {
-    height: 70px;
+  height: 70px;
 }
 
 #library .ticker {
-    width: 190px;
-    height: 190px;
-    line-height: 190px;
+  width: 190px;
+  height: 190px;
+}
+
+#library .ticker .front {
+  line-height: 190px;
 }

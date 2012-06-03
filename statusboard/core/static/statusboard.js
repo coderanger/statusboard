@@ -57,18 +57,26 @@ $(function() {
   $('#library .box2').parents('.library-wrapper').width(400);
   $('.library-wrapper').sortable({
     connectWith: '.row',
-    helper: 'clone',
+    helper: function(evt, elm) {
+      return elm.clone().css({width: '', height: ''}).appendTo('.row:first');
+    },
     placeholder: 'widget box placeholder',
+    tolerance: 'pointer',
     start: function(evt, ui) {
-        $(ui.placeholder).width($(ui.helper).width());
-        $(ui.placeholder).height($(ui.helper).height());
-        if($('.row').last().find('.box').length != 0) {
-          var newid = $('.row').length;
-          $('.row').last().after('<div id="row'+newid+'" class="row"></div>');
-          setup_sortable('#row'+newid);
-        }
-        checkEmpty();
-      },
+      ui.item.show();
+      ui.helper.css({width: '', height: ''}).css({
+        'margin-top': evt.offsetY-(0.5*ui.helper.height())+'px',
+        'margin-left': -0.5*$(ui.helper).width()+(evt.offsetX - ui.helper.offset().left)+'px'
+      });
+      ui.placeholder.width(ui.helper.width());
+      ui.placeholder.height(ui.helper.height());
+      if($('.row').last().find('.box').length != 0) {
+        var newid = $('.row').length;
+        $('.row').last().after('<div id="row'+newid+'" class="row"></div>');
+        setup_sortable('#row'+newid);
+      }
+      checkEmpty();
+    },
     beforeStop: function(evt, ui) {
       if($(ui.placeholder).parents('#library').length > 0) {
         return;
@@ -106,6 +114,7 @@ $(function() {
     $('.row').sortable({
       connectWith: '.row',
       placeholder: 'widget box placeholder',
+      tolerance: 'pointer',
       start: function(evt, ui) {
         $(ui.placeholder).width($(ui.helper).width());
         $(ui.placeholder).height($(ui.helper).height());
