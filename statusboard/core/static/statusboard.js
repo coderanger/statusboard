@@ -3,6 +3,16 @@ $(function() {
   var changed = [];
   var optionsMode = false;
   
+  var checkEmpty = function() {
+    $('.row').each(function() {
+      if($(this).children().not('.ui-sortable-helper').size() == 0)
+        $(this).addClass('empty');
+      else
+        $(this).removeClass('empty');
+    });
+    $('.row.empty').not(':first').remove();
+  };
+
   $('body').mousedown(function(evt) {
     if(evt.target.tagName != 'INPUT' && evt.target.tagName != 'SELECT')
       evt.preventDefault();
@@ -51,11 +61,13 @@ $(function() {
     placeholder: 'widget box placeholder',
     start: function(evt, ui) {
         $(ui.placeholder).width($(ui.helper).width());
+        $(ui.placeholder).height($(ui.helper).height());
         if($('.row').last().find('.box').length != 0) {
           var newid = $('.row').length;
           $('.row').last().after('<div id="row'+newid+'" class="row"></div>');
           setup_sortable('#row'+newid);
         }
+        checkEmpty();
       },
     beforeStop: function(evt, ui) {
       if($(ui.placeholder).parents('#library').length > 0) {
@@ -96,12 +108,17 @@ $(function() {
       placeholder: 'widget box placeholder',
       start: function(evt, ui) {
         $(ui.placeholder).width($(ui.helper).width());
+        $(ui.placeholder).height($(ui.helper).height());
         $('#trash').show(); 
         if($('.row').last().find('.box').length != 0) {
           var newid = $('.row').length;
           $('.row').last().after('<div id="row'+newid+'" class="row"></div>');
           setup_sortable('#row'+newid);
         }
+        checkEmpty();
+      },
+      change: function(evt, ui) {
+        checkEmpty();
       },
       stop: function(evt, ui) {
         $('#trash').hide();

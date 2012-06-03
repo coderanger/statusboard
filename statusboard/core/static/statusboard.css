@@ -64,11 +64,12 @@ body.optionsMode #menu #menu-inner {
 
 .row {
   clear: both;
-  height: 200px;
+  overflow: hidden;
 }
 
 .row.empty {
   width: 200px;
+  height: 200px;
 }
 
 .box {

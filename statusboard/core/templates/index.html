@@ -27,7 +27,7 @@
       <hr class="divider" />
     </div>
     {% for row in grid %}
-    <div id="row{{ forloop.counter0 }}" class="row">
+    <div id="row{{ forloop.counter0 }}" class="row{% if not row %} empty{% endif %}">
       {% for widget in row %}
       {{ widget.output }}
       {% endfor %}

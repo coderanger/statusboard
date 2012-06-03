@@ -84,7 +84,7 @@ def index(request):
             css_files.add(LinkData(name=plugin['name'], path=plugin['namespace'] + '/' + css))
         for js in plugin['instance'].js():
             js_files.add(LinkData(name=plugin['name'], path=plugin['namespace'] + '/' + js))
-        output = render_widget(request, {'type': name, 'id': 'library-'+name})
+        output = render_widget(request, {'type': name, 'id': 'library-'+name, 'library': True})
         library.append({'output': output, 'name': name})
     
     # Render all the widgets we need
