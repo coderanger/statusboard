@@ -2,14 +2,8 @@
 <html>
   <head>
     <title>Status Board</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
-    <script src="/static/django_ajax.js"></script>
-    <script src="/static/statusboard.js"></script>
     <link rel="stylesheet" href="/static/statusboard.css" type="text/css" />
     {% for d in css %}<link rel="stylesheet" href="{{ STATIC_URL }}{{ d.path }}" type="text/css" />
-    {% endfor %}
-    {% for d in js %}<script src="{{ STATIC_URL }}{{ d.path }}"></script>
     {% endfor %}
   </head>
   <body>
@@ -34,5 +28,24 @@
     </div>
     {% endfor %}
     <div id="trash"><img src="/static/icons/trash.png" /></div>
+    {% if debug %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.js"></script>
+    {% else %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+    {% endif %}
+    <script type="text/javascript">
+      if (typeof jQuery == 'undefined') {
+          document.write(unescape("%3Cscript src='/jquery-1.7.2.js' type='text/javascript'%3E%3C/script%3E"));
+      }
+      if (typeof jQuery.ui == 'undefined') {
+          document.write(unescape("%3Cscript src='/jquery-ui-1.8.18.js' type='text/javascript'%3E%3C/script%3E"));
+      }
+    </script>
+    <script type="text/javascript" src="/static/django_ajax.js"></script>
+    <script type="text/javascript" src="/static/statusboard.js"></script>
+    {% for d in js %}<script type="text/javascript" src="{{ STATIC_URL }}{{ d.path }}"></script>
+    {% endfor %}
   </body>
 </html>
